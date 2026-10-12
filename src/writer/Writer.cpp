@@ -55,6 +55,8 @@ namespace OpenLogReplicator {
     void Writer::createMessage(BuilderMsg* msg) {
         ++sentMessages;
 
+        // After a rewind a message confirmed before the client reconnected can be queued again; it must wait for a new confirm
+        msg->unsetFlag(BuilderMsg::OUTPUT_BUFFER::CONFIRMED);
         queue[currentQueueSize++] = msg;
         hwmQueueSize = std::max(currentQueueSize, hwmQueueSize);
     }
@@ -92,7 +94,25 @@ namespace OpenLogReplicator {
         delete[] oldQueue;
     }
 
-    void Writer::resetMessageQueue() {
+    // Checks, before any client state changes, that every message after the cursor (scn, idx) can still be resent; an unset
+    // cursor (Scn::none()) asks for everything. On success replayQueue/replayStart are where resetMessageQueue() must restart.
+    bool Writer::checkReplay(Scn scn, typeIdx idx, BuilderQueue*& replayQueue, uint64_t& replayStart, std::string& reason) {
+        bool floorSet;
+        Scn floorScn;
+        typeIdx floorIdx;
+        if (!builder->getReplayStart(this, replayQueue, replayStart, floorSet, floorScn, floorIdx)) {
+            reason = "the replay start of the first retained buffer (id: " + std::to_string(replayQueue->id) + ") is not known yet";
+            return false;
+        }
+        if (floorSet && (scn == Scn::none() || scn < floorScn || (scn == floorScn && idx < floorIdx))) {
+            reason = "output up to scn: " + floorScn.toString() + ", idx: " + std::to_string(floorIdx) +
+                    " can no longer be resent (first retained buffer id: " + std::to_string(replayQueue->id) + ")";
+            return false;
+        }
+        return true;
+    }
+
+    void Writer::resetMessageQueue(BuilderQueue* replayQueue, uint64_t replayStart) {
         for (uint64_t i = 0; i < currentQueueSize; ++i) {
             BuilderMsg* msg = queue[i];
             if (msg->isFlagSet(BuilderMsg::OUTPUT_BUFFER::ALLOCATED))
@@ -100,7 +120,10 @@ namespace OpenLogReplicator {
         }
         currentQueueSize = 0;
 
-        oldSize = builderQueue->start;
+        // Sent but unconfirmed messages can lie in earlier buffers than the current one; only buffers that hold nothing
+        // but confirmed messages have been released, so the first retained buffer is where resending has to start
+        builderQueue = replayQueue;
+        oldSize = replayStart;
     }
 
     void Writer::confirmMessage(BuilderMsg* msg) {
@@ -384,11 +407,20 @@ namespace OpenLogReplicator {
                               std::to_string(confirmedIdx) + " checkpoint scn: " + checkpointScn.toString() + " idx: " + std::to_string(checkpointIdx));
         }
         const std::string name(database + "-chkpt");
+        const bool rac = !metadata->racThreads.empty();
         std::ostringstream ss;
         ss << R"({"database":")" << database
                 << R"(","scn":)" << std::dec << confirmedScn.toString()
                 << R"(,"idx":)" << std::dec << confirmedIdx
-                << R"(,"resetlogs":)" << std::dec << metadata->resetlogs
+                << R"(,"first-data-scn":)" << std::dec << metadata->firstDataScn.toString()
+                << R"(,"cursor-format":)" << std::dec << (rac ? CURSOR_FORMAT_RAC : CURSOR_FORMAT);
+        if (rac) {
+            ss << R"(,"schema-scn":)" << std::dec << metadata->firstSchemaScn.toString() << R"(,"rac-threads":[)";
+            for (size_t i = 0; i < metadata->racThreads.size(); ++i)
+                ss << (i > 0 ? "," : "") << std::dec << metadata->racThreads[i];
+            ss << "]";
+        }
+        ss << R"(,"resetlogs":)" << std::dec << metadata->resetlogs
                 << R"(,"activation":)" << std::dec << metadata->activation << "}";
 
         if (metadata->stateWrite(name, confirmedScn, ss)) {
@@ -417,7 +449,11 @@ namespace OpenLogReplicator {
                 "database",
                 "idx",
                 "resetlogs",
-                "scn"
+                "scn",
+                "first-data-scn",
+                "cursor-format",
+                "schema-scn",
+                "rac-threads"
             };
             Ctx::checkJsonFields(name, document, documentNames);
         }
@@ -429,6 +465,39 @@ namespace OpenLogReplicator {
         metadata->setResetlogs(Ctx::getJsonFieldU32(name, document, "resetlogs"));
         metadata->setActivation(Ctx::getJsonFieldU32(name, document, "activation"));
 
+        // Cursor format 2: idx is the emitted 1-based c_idx of data messages (checkpoint messages take no ordinal), and the
+        // acknowledged cursor (scn, idx) only suppresses delivered output while first-data-scn keeps the bootstrap commit
+        // filter. Older checkpoints used a different idx numbering and coupled the start SCN to the acknowledged SCN;
+        // they can't be reinterpreted safely, so they are rejected (no automatic migration).
+        // Cursor format 3 is the rac-batch form: scn is a record scn of the merged stream, not an LWN scn, and "schema-scn" and
+        // "rac-threads" fix the schema cut and thread set of the replayed plan. Neither mode accepts the other mode's cursor.
+        const bool rac = !metadata->racThreads.empty();
+        const uint64_t cursorFormat = rac ? CURSOR_FORMAT_RAC : CURSOR_FORMAT;
+        if (!document.HasMember("cursor-format") || Ctx::getJsonFieldU64(name, document, "cursor-format") != cursorFormat ||
+                !document.HasMember("first-data-scn") || (rac && (!document.HasMember("schema-scn") || !document.HasMember("rac-threads"))))
+            throw DataException(20001, "file: " + name + " - unsupported writer checkpoint format (expected \"cursor-format\": " +
+                                std::to_string(cursorFormat) + (rac ? R"( with "first-data-scn", "schema-scn" and "rac-threads" for reader type )"
+                                R"("rac-batch")" : R"( with "first-data-scn" for single-thread reader types)") + "); legacy cursors and cursors "
+                                "of the other reader mode can't be resumed, start a new replication");
+
+        if (rac) {
+            const rapidjson::Value& threadsJson = Ctx::getJsonFieldA(name, document, "rac-threads");
+            std::vector<uint16_t> threads;
+            for (rapidjson::SizeType k = 0; k < threadsJson.Size(); ++k)
+                threads.push_back(Ctx::getJsonFieldU16(name, threadsJson, "rac-threads", k));
+            if (threads != metadata->racThreads) {
+                auto list = [](const std::vector<uint16_t>& v) {
+                    std::string s;
+                    for (const uint16_t t: v)
+                        s += (s.empty() ? "" : ",") + std::to_string(t);
+                    return "[" + s + "]";
+                };
+                throw DataException(20001, "file: " + name + " - acknowledged cursor belongs to rac-threads " + list(threads) +
+                                    ", but the configuration merges " + list(metadata->racThreads) + "; start a new replication");
+            }
+            metadata->clientSchemaScn = Ctx::getJsonFieldU64(name, document, "schema-scn");
+        }
+
         // Started earlier - continue work and ignore default startup parameters
         checkpointScn = Ctx::getJsonFieldU64(name, document, "scn");
         metadata->clientScn = checkpointScn;
@@ -437,7 +506,7 @@ namespace OpenLogReplicator {
         else
             checkpointIdx = 0;
         metadata->clientIdx = checkpointIdx;
-        metadata->startScn = checkpointScn;
+        metadata->startScn = Ctx::getJsonFieldU64(name, document, "first-data-scn");
         metadata->startSequence = Seq::none();
         metadata->startTime.clear();
         metadata->startTimeRel = 0;

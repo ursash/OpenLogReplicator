@@ -494,14 +494,23 @@ namespace OpenLogReplicator {
         if (unlikely(ctx->isTraceSet(Ctx::TRACE::CHECKPOINT)))
             ctx->logTrace(Ctx::TRACE::CHECKPOINT, "scn: " + firstDataScn.toString());
 
-        if (firstDataScn != Scn::none() && firstDataScn.getData() != 0) {
+        // Resuming after an acknowledged output cursor: restart strictly below the acknowledged scn, so the whole index
+        // group of that scn (and every later one) is regenerated from redo before isNewData() suppresses delivered messages.
+        // rac-batch writes no replicator checkpoints: it always replays from the original schema checkpoint at or below first-data-scn
+        const bool resume = clientScn != Scn::none() && racThreads.empty();
+        if (resume || (firstDataScn != Scn::none() && firstDataScn.getData() != 0)) {
             auto it = checkpointScnList.cend();
 
             while (it != checkpointScnList.cbegin()) {
                 --it;
-                if (*it <= firstDataScn && (sequence == Seq::none() || sequence == Seq::zero()))
+                const bool usable = resume ? (*it < clientScn) : (*it <= firstDataScn);
+                if (usable && (sequence == Seq::none() || sequence == Seq::zero()))
                     readCheckpoint(*it);
             }
+
+            if (resume && (sequence == Seq::none() || sequence == Seq::zero()))
+                throw RuntimeException(10073, "no checkpoint with scn below acknowledged scn " + clientScn.toString() +
+                                       " found, can't regenerate unacknowledged output");
         }
     }
 

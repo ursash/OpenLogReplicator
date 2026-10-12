@@ -65,6 +65,11 @@ namespace OpenLogReplicator {
         uint64_t id;
         std::atomic<uint64_t> confirmedSize;
         std::atomic<uint64_t> start;
+        // Greatest (lwnScn, lwnIdx) of the messages whose header precedes start, i.e. that can't be resent from this buffer
+        // (they began in an earlier buffer or before start). Valid only when floorSet; written before start is defined.
+        Scn floorScn;
+        typeIdx floorIdx;
+        bool floorSet;
         uint8_t* data;
         std::atomic<BuilderQueue*> next;
     };
@@ -144,6 +149,10 @@ namespace OpenLogReplicator {
         std::unordered_set<const DbTable*> tables;
         uint64_t lastBuilderSize{0};
         Scn beginScn{Scn::none()};
+        // Greatest (lwnScn, lwnIdx) of all committed messages, valid when committedMaxSet
+        Scn committedMaxScn{Scn::none()};
+        typeIdx committedMaxIdx{0};
+        bool committedMaxSet{false};
         Scn commitScn{Scn::none()};
         Time beginTimestamp{0};
         Time commitTimestamp{0};
@@ -194,15 +203,23 @@ namespace OpenLogReplicator {
             nextBuffer->id = lastBuilderQueue->id + 1;
             nextBuffer->data = reinterpret_cast<uint8_t*>(nextBuffer) + sizeof(BuilderQueue);
             nextBuffer->confirmedSize = 0;
+            nextBuffer->floorScn = committedMaxScn;
+            nextBuffer->floorIdx = committedMaxIdx;
+            nextBuffer->floorSet = committedMaxSet;
             lastBuilderSize = 0;
 
-            // Message could potentially fit in one buffer
-            if (likely(copy && msg != nullptr && messageSize + messagePosition < OUTPUT_BUFFER_DATA_SIZE)) {
+            if (msg == nullptr && messagePosition == 0) {
+                // Rotated by builderBegin before the header of a new message: that message is the first one at offset 0
+                nextBuffer->start = 0;
+            } else if (likely(copy && msg != nullptr && messageSize + messagePosition < OUTPUT_BUFFER_DATA_SIZE)) {
+                // Message could potentially fit in one buffer
                 memcpy(nextBuffer->data, msg, messagePosition);
                 msg = reinterpret_cast<BuilderMsg*>(nextBuffer->data);
                 msg->data = nextBuffer->data + sizeof(BuilderMsg);
                 nextBuffer->start = 0;
             } else {
+                // The buffer begins with a fragment of a message whose header stays in the previous buffer; start and floor
+                // are defined when that message is committed
                 lastBuilderQueue->confirmedSize += messagePosition;
                 messageSize += messagePosition;
                 messagePosition = 0;
@@ -321,7 +338,14 @@ namespace OpenLogReplicator {
             ctx->assertDebug(lastBuilderSize + messagePosition < OUTPUT_BUFFER_DATA_SIZE);
             msg->scn = scn;
             msg->lwnScn = lwnScn;
-            msg->lwnIdx = lwnIdx++;
+            // Same 1-based index as the emitted c_idx (appendHeader runs after builderBegin), so a client cursor,
+            // the writer checkpoint and isNewData() all compare identical values. Checkpoint messages take no ordinal
+            // of their own: they repeat the last data ordinal of the group (0 if none), so a checkpoint emitted at
+            // shutdown or inside an incomplete LWN can never cover a data message produced after restart.
+            if ((static_cast<uint>(flags) & static_cast<uint>(BuilderMsg::OUTPUT_BUFFER::CHECKPOINT)) != 0)
+                msg->lwnIdx = lwnIdx;
+            else
+                msg->lwnIdx = ++lwnIdx;
             msg->sequence = sequence;
             msg->size = 0;
             msg->tagSize = 0;
@@ -339,12 +363,29 @@ namespace OpenLogReplicator {
             msg->queueId = lastBuilderQueue->id;
             builderShiftFast((8 - (messagePosition & 7)) & 7);
             unconfirmedSize += messageSize;
+
+            // Everything that reads the header or defines the replay start has to happen before msg->size is set: for a message
+            // spanning buffers that store publishes it, after which the writer may send and confirm it and free its first buffer.
+            // A hidden checkpoint is never delivered, so it can't make a client cursor unservable and doesn't raise the floor.
+            if (!msg->isFlagSet(BuilderMsg::OUTPUT_BUFFER::CHECKPOINT) || ctx->isFlagSet(Ctx::REDO_FLAGS::SHOW_CHECKPOINT)) {
+                if (!committedMaxSet || msg->lwnScn > committedMaxScn || (msg->lwnScn == committedMaxScn && msg->lwnIdx > committedMaxIdx)) {
+                    committedMaxScn = msg->lwnScn;
+                    committedMaxIdx = msg->lwnIdx;
+                    committedMaxSet = true;
+                }
+            }
+            if (unlikely(lastBuilderQueue->start == BUFFER_START_UNDEFINED)) {
+                // The buffer began with the tail of this message, the first message to resend follows it
+                lastBuilderQueue->floorScn = committedMaxScn;
+                lastBuilderQueue->floorIdx = committedMaxIdx;
+                lastBuilderQueue->floorSet = committedMaxSet;
+                lastBuilderQueue->start = static_cast<uint64_t>(lastBuilderQueue->confirmedSize) + messagePosition;
+            }
+
             msg->size = messageSize - sizeof(BuilderMsg);
             msg = nullptr;
             lastBuilderQueue->confirmedSize += messagePosition;
             lastBuilderSize += messagePosition;
-            if (unlikely(lastBuilderQueue->start == BUFFER_START_UNDEFINED))
-                lastBuilderQueue->start = static_cast<uint64_t>(lastBuilderQueue->confirmedSize);
 
             if (flushBuffer == 0 || unconfirmedSize > flushBuffer)
                 flush();
@@ -1263,6 +1304,7 @@ namespace OpenLogReplicator {
         virtual void processCommit() = 0;
         virtual void processCheckpoint(Seq sequence, Scn scn, Time timestamp, FileOffset fileOffset, bool redo) = 0;
         void releaseBuffers(Thread* t, uint64_t maxId);
+        bool getReplayStart(Thread* t, BuilderQueue*& queue, uint64_t& start, bool& floorSet, Scn& floorScn, typeIdx& floorIdx);
         void releaseDdl();
         void appendDdlChunk(const uint8_t* data, typeTransactionSize size);
         void sleepForWriterWork(Thread* t, uint64_t queueSize, uint64_t nanoseconds);

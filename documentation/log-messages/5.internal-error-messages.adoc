@@ -113,7 +113,9 @@ Report these if encountered.
 
 ==== code 50051: "did not find lwn at offset: <value>"
 
-==== code 50052: "all <number> lwn buffers allocated"
+==In `rac-batch` mode the same code reports a log that does not end cleanly: reading stopped with an error, an LWN or record is incomplete at the end, or "reading ended at block <n> before the end of the log at block <nab>; the block is unreadable or invalid" (a block failed its checks, see the reader warning before it).
+
+== code 50052: "all <number> lwn buffers allocated"
 
 ==== code 50053: "too big redo log record, length: <number>"
 

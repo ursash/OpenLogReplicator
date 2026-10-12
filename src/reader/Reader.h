@@ -79,6 +79,8 @@ namespace OpenLogReplicator {
         std::string fileNameWrite;
         int group;
         Seq sequence;
+        uint32_t dbidHeader{0};
+        uint16_t threadHeader{0};
         typeBlk numBlocksHeader{Ctx::ZERO_BLK};
         typeResetlogs resetlogs{0};
         typeActivation activation{0};
@@ -118,6 +120,7 @@ namespace OpenLogReplicator {
         REDO_CODE reloadHeader();
         bool read1();
         bool read2();
+        [[nodiscard]] bool bufferFull() const;
         void mainLoop();
 
     public:
@@ -125,6 +128,9 @@ namespace OpenLogReplicator {
         uint8_t** redoBufferList{nullptr};
         std::vector<std::string> paths;
         std::string fileName;
+        // Bytes this reader may buffer ahead of the parser (0: ctx->bufferSizeMax); readers that are read concurrently share one
+        // buffer pool, so each needs a cap below its share or a reader waiting for the parser can starve the one being parsed
+        uint64_t readAheadMax{0};
 
         Reader(Ctx* newCtx, std::string newAlias, std::string newDatabase, int newGroup, bool newConfiguredBlockSum);
         ~Reader() override;
@@ -147,7 +153,12 @@ namespace OpenLogReplicator {
         [[nodiscard]] Time getNextTime() const;
         [[nodiscard]] typeBlk getNumBlocks() const;
         [[nodiscard]] int getGroup() const;
+        // Online redo log semantics (a block of an older sequence is not written yet, verified re-reads) for a nonzero group; set
+        // only while the reader is not reading
+        void setGroup(int newGroup);
         [[nodiscard]] Seq getSequence() const;
+        [[nodiscard]] uint32_t getDbid() const;
+        [[nodiscard]] uint16_t getThread() const;
         [[nodiscard]] typeResetlogs getResetlogs() const;
         [[nodiscard]] typeActivation getActivation() const;
         [[nodiscard]] uint64_t getSumRead() const;
@@ -160,7 +171,8 @@ namespace OpenLogReplicator {
         bool updateRedoLog();
         void setStatusRead();
         void confirmReadData(FileOffset confirmedBufferStart);
-        [[nodiscard]] bool checkFinished(Thread* t, FileOffset confirmedBufferStart);
+        // With wait == false, returns false at once instead of waiting for more data
+        [[nodiscard]] bool checkFinished(Thread* t, FileOffset confirmedBufferStart, bool wait = true);
         virtual void showHint(Thread* t, std::string origPath, std::string mappedPath) const = 0;
 
         std::string getName() const override {

@@ -395,3 +395,57 @@ The file will be partially read.
 
 A message exceeds the writer buffer.
 Increase `write-buffer-max-mb` and possibly `max-mb`.
+
+== code 10073: "no checkpoint with scn below acknowledged scn <scn> found, can't regenerate unacknowledged output"
+
+Replication resumes from the writer checkpoint (acknowledged output cursor), but no replicator checkpoint with an SCN strictly lower than the acknowledged SCN is available.
+Without it, the output group of the acknowledged SCN can't be rebuilt from redo with identical indexes, so the program stops instead of risking lost or renumbered messages.
+Restore the missing checkpoint files or start a new replication.
+Reader type `rac-batch` doesn't use this rule; it always replays from the schema checkpoint at or below the first data SCN (see code 10077).
+
+== code 10074: "<message about the rac-batch redo log inventory>"
+
+Reader type `rac-batch` (experimental) validates the complete list of archived redo logs before any redo is processed: every file must be a closed archived log of the configured database identity (`rac-dbid`, resetlogs and activation of the schema checkpoint) and of a thread listed in `rac-threads`; copies of the same thread and sequence must be identical; every thread needs a gap-free chain of logs from the log containing the replay SCN (the lower of `start-scn` and the schema checkpoint SCN) to its last log, and the common end SCN (lowest next SCN of the last logs of all threads) must be after `start-scn`.
+The message names the violated condition and the file.
+Correct the inventory; the program does not skip or guess missing logs.
+
+Reader type `rac-follow` (experimental) applies the same checks at start and then, once every record below the common end SCN is merged, rescans the inventory every `arch-read-sleep-us`.
+It extends a thread only by a closed log with the next sequence that starts at the previous log's next SCN, and raises the end SCN only when the lowest next SCN of all threads rises; a thread without new logs keeps the end SCN where it is.
+A missing sequence is not an error: the thread waits for it, and later logs of that thread are not used until the chain reaches them.
+Processing stops with this code when a rescanned log fails a check (including a log that is not yet completely written: expose a log only when it is complete), when copies of one sequence conflict, when a log with the next sequence does not start at the previous next SCN, or when a log already planned is no longer in the inventory or its header changed.
+
+Both reader types also accept `rac-standby-log` (experimental): a list of standby redo log members, kept apart from `redo-log`.
+At every inventory scan each member is classified by its header and the state is logged when it changes. Sequence 0 means unused and is skipped. Any other member must pass the identity and thread checks of an archived log; without NAB or next SCN it is still being written and is not used; a complete one must also pass the size check and then takes part like an archived log.
+A standby log and an archived log (or a second standby member) of the same thread and sequence are accepted as one log only if their first SCN, next SCN, NAB and block size are equal, blocks 2 to NAB are identical and the first two blocks differ only in the bytes that record the copy kind (block 0 bytes 16-17 and 24-27, header block bytes 14-15 and 236-239); the archived copy is then used. Two archived copies must still be identical in every byte up to NAB.
+A standby log is reused by the database after it is archived: a planned log that was not opened yet switches to its archived copy, a reused member no longer counts for its old sequence, and a member that changes while it is being read stops processing (code 10074 when the header changed before it was opened, code 50051 when a block of another sequence is read; with `rac-standby-live` see below).
+When a planned log is opened, the header the reader itself read and checked must match the inventory in database id, thread, sequence, resetlogs, activation, block size, first SCN and, for a complete log, next SCN and NAB; otherwise processing stops with "header changed after inventory".
+
+Reader type `rac-follow` also accepts `rac-standby-live: 1` (experimental, needs a non-empty `rac-standby-log` and `redo-verify-delay-us` > 0).
+A member that is still being written may then end a thread's chain if it has the next sequence and starts at the previous log's next SCN. It is read like an online redo log without blocking the other threads, and a record is merged only below the bound of every thread that has no complete LWN to offer (the SCN of its last complete LWN).
+A growing log may become complete with the same identity; the reader must end at the NAB and next SCN of its now complete header and of every complete copy in the inventory.
+A standby log that was read to that NAB and next SCN is fully processed: its member may then be reused for a later sequence before the archived copy is in the inventory (logged, not an error). The thread keeps the log as read and continues with the next sequence as usual; an archived copy that appears later must match it like any other copy. A planned log that was not read to its end still stops processing with this code when it is no longer in the inventory.
+Processing stops with this code when two growing members have the same thread and sequence, when a growing log does not start at the previous next SCN, when a planned growing log changes into another member or identity, or when a planned complete log appears as growing.
+A growing member that is reused while it is being read (the reader finds a block or header of a newer sequence, and the member's header then passes its block number and checksum checks with the same database identity and thread and a later sequence) no longer counts for its sequence. Otherwise, for example for a block whose sequence field is corrupt, processing stops with this code. The partly read LWN is dropped unparsed, and the sequence continues only from its archived log, at the first block of the first LWN that was not processed yet (the log's NAB if every LWN was processed); the thread keeps its bound and waits, without a timeout, until that archived log is in the inventory. No other log, in particular no later sequence, replaces it.
+The archived log must pass the checks of a planned log (same first SCN and block size as the growing log, and the opened header check below); processing stops with this code when its NAB is before the continuation block or its next SCN is below the thread's bound.
+
+== code 10075: "thread <thread> sequence <sequence> block <block> offset <offset>: record scn <scn> ..."
+
+In `rac-batch` mode the redo records of each thread are merged in the order of their LWNs.
+This is a global SCN order only if every record lies within the SCN range of its log and no record of a later LWN of a thread has a lower SCN than a record of an earlier LWN of the same thread.
+The input violates that assumption, so the records can't be merged and processing stops.
+With `rac-standby-live: 1` the bound of a growing log also assumes that the LWN SCNs of a thread never go down and that no record is below the SCN of its LWN; a violation stops processing with this code.
+These checks run when the LWN arrives, so records merged before it stay in the output.
+
+== code 10076: "transaction <xid> (con <id>) committed at scn <scn> in <path> after the data/schema cut, but its begin is not in the replayed redo; replay must start earlier"
+
+In `rac-batch` mode a commit record (not a rollback) with SCN above the earlier of the data and schema cuts belongs to a transaction whose begin record was not processed: it started before the first processed log of its thread.
+Its table set is unknown, so it could be lost data or a lost dictionary change; processing stops.
+Use an earlier schema checkpoint and start SCN so that replay starts before the transaction.
+With `SHOW_INCOMPLETE_TRANSACTIONS` the same condition is reported as "transaction <xid> committed at scn <scn> after the data/schema cut, but its begin is not in the closed redo inventory; replay must start earlier".
+
+== code 10077: "acknowledged rac-batch cursor was produced with schema scn <scn>, but the schema checkpoint at or below first data scn <scn> is now <scn>; restore that checkpoint or start a new replication"
+
+Reader type `rac-batch` resumes by replaying the same closed set of archived redo logs again from the original bootstrap: the first data SCN and the schema checkpoint at or below it.
+Reader type `rac-follow` resumes the same way over the inventory found at its start, and then follows it.
+The writer checkpoint stores the schema SCN that produced the acknowledged output cursor.
+A different schema checkpoint changes where replay starts, so the regenerated stream might not match the acknowledged prefix, and processing stops.

@@ -185,3 +185,15 @@ Remediation: Verify XML content and source XML dictionary metadata.
 
 DDL-related system data is malformed or unexpected.
 Remediation: Inspect raw DDL records and source metadata; report if reproducible.
+
+== code 60038, "can't continue from scn: <scn>, idx: <number>, <reason>"
+
+A network client sent `CONTINUE` with a cursor (`c_scn`, `c_idx`; when `c_scn` is 0 or absent, the cursor last confirmed in this process) that the retained in-memory output cannot serve completely.
+Some output required after that cursor can no longer be resent. The program answers `FAILED_START` instead of `REPLICATE`; the client cursor, output queue, replay position and streaming flag are left unchanged.
+
+The reported replay floor describes what retained memory can serve; it is not a safe recovery position. Do not move the client's cursor forward to that floor unless an independent check proves that all required data through it was durably persisted downstream. Otherwise the missing data remains missing.
+Sending `START` to the same process while it is already replicating returns `ALREADY_STARTED` and cannot regenerate released output.
+Recovering a missing range requires available source redo/archive history and an explicit bootstrap, snapshot or checkpoint strategy. A restart or new replication must be validated separately against an independent baseline for loss, duplicates and transaction boundaries; this warning does not promise that restarting will recover the data.
+
+The reason "the replay start of the first retained buffer ... is not known yet" is unexpected in the current normal path. Preserve the log and investigate; do not assume that retrying will resolve it.
+This check covers only retained output in this process. It does not prove regenerated output is complete after restart or fix premature client confirmation.

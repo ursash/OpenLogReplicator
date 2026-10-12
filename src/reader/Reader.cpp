@@ -278,7 +278,9 @@ namespace OpenLogReplicator {
             return REDO_CODE::ERROR_BAD_DATA;
         }
 
+        dbidHeader = ctx->read32(headerBuffer + blockSize + 24);
         activation = ctx->read32(headerBuffer + blockSize + 52);
+        threadHeader = ctx->read16(headerBuffer + blockSize + 176);
         numBlocksHeader = ctx->read32(headerBuffer + blockSize + 156);
         resetlogs = ctx->read32(headerBuffer + blockSize + 160);
         thread = ctx->read16(headerBuffer + blockSize + 176);
@@ -690,10 +692,10 @@ namespace OpenLogReplicator {
                     }
 
                     // Buffer full?
-                    if (bufferStart + ctx->bufferSizeMax == bufferEnd) {
+                    if (bufferFull()) {
                         contextSet(CONTEXT::MUTEX, REASON::READER_FULL);
                         std::unique_lock lck(mtx);
-                        if (!ctx->softShutdown && bufferStart + ctx->bufferSizeMax == bufferEnd) {
+                        if (!ctx->softShutdown && bufferFull()) {
                             if (unlikely(ctx->isTraceSet(Ctx::TRACE::SLEEP)))
                                 ctx->logTrace(Ctx::TRACE::SLEEP, "Reader:mainLoop:bufferFull");
                             contextSet(CONTEXT::WAIT, REASON::READER_BUFFER_FULL);
@@ -840,6 +842,12 @@ namespace OpenLogReplicator {
         t->contextSet(CONTEXT::CPU);
 
         ctx->freeMemoryChunk(this, Ctx::MEMORY::READER, buffer);
+    }
+
+    bool Reader::bufferFull() const {
+        if (readAheadMax != 0)
+            return bufferStart + readAheadMax <= bufferEnd;
+        return bufferStart + ctx->bufferSizeMax == bufferEnd;
     }
 
     bool Reader::bufferIsFree() {
@@ -1058,8 +1066,20 @@ namespace OpenLogReplicator {
         return group;
     }
 
+    void Reader::setGroup(int newGroup) {
+        group = newGroup;
+    }
+
     Seq Reader::getSequence() const {
         return sequence;
+    }
+
+    uint32_t Reader::getDbid() const {
+        return dbidHeader;
+    }
+
+    uint16_t Reader::getThread() const {
+        return threadHeader;
     }
 
     typeResetlogs Reader::getResetlogs() const {
@@ -1166,7 +1186,7 @@ namespace OpenLogReplicator {
         contextSet(CONTEXT::CPU);
     }
 
-    bool Reader::checkFinished(Thread* t, FileOffset confirmedBufferStart) {
+    bool Reader::checkFinished(Thread* t, FileOffset confirmedBufferStart, bool wait) {
         t->contextSet(CONTEXT::MUTEX, REASON::READER_CHECK_FINISHED);
         {
             std::unique_lock lck(mtx);
@@ -1178,6 +1198,10 @@ namespace OpenLogReplicator {
                 if (ret == REDO_CODE::STOPPED || ret == REDO_CODE::OVERWRITTEN || ret == REDO_CODE::FINISHED || status == STATUS::SLEEPING) {
                     t->contextSet(CONTEXT::CPU);
                     return true;
+                }
+                if (!wait) {
+                    t->contextSet(CONTEXT::CPU);
+                    return false;
                 }
                 if (unlikely(ctx->isTraceSet(Ctx::TRACE::SLEEP)))
                     ctx->logTrace(Ctx::TRACE::SLEEP, "Reader:checkFinished");
