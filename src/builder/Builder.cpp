@@ -78,6 +78,9 @@ namespace OpenLogReplicator {
         firstBuilderQueue->next = nullptr;
         firstBuilderQueue->data = reinterpret_cast<uint8_t*>(firstBuilderQueue) + sizeof(BuilderQueue);
         firstBuilderQueue->confirmedSize = 0;
+        firstBuilderQueue->floorScn = Scn::none();
+        firstBuilderQueue->floorIdx = 0;
+        firstBuilderQueue->floorSet = false;
         firstBuilderQueue->start = 0;
         lastBuilderQueue = firstBuilderQueue;
         lastBuilderSize = 0;
@@ -2405,6 +2408,24 @@ namespace OpenLogReplicator {
             ctx->freeMemoryChunk(ctx->parserThread, Ctx::MEMORY::BUILDER, reinterpret_cast<uint8_t*>(builderQueue));
             builderQueue = nextBuffer;
         }
+    }
+
+    // Where a client rewind resends from: the first retained buffer and its start, plus the greatest cursor of the messages
+    // that can't be resent (released or before start). Returns false while start is not yet defined. The stream writer
+    // releases buffers only from its own thread, so the result stays valid for that thread until it confirms a message.
+    bool Builder::getReplayStart(Thread* t, BuilderQueue*& queue, uint64_t& start, bool& floorSet, Scn& floorScn, typeIdx& floorIdx) {
+        {
+            t->contextSet(Thread::CONTEXT::MUTEX, Thread::REASON::BUILDER_RELEASE);
+            std::unique_lock const lck(mtx);
+            queue = firstBuilderQueue;
+            // Load start first: the floor is written before start is defined
+            start = queue->start;
+            floorSet = queue->floorSet;
+            floorScn = queue->floorScn;
+            floorIdx = queue->floorIdx;
+        }
+        t->contextSet(Thread::CONTEXT::CPU);
+        return start != BUFFER_START_UNDEFINED;
     }
 
     void Builder::releaseDdl() {

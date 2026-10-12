@@ -161,21 +161,35 @@ namespace OpenLogReplicator {
         }
 
         // default values
-        metadata->clientScn = confirmedScn;
-        metadata->clientIdx = confirmedIdx;
+        Scn clientScn = confirmedScn;
+        typeIdx clientIdx = confirmedIdx;
         std::string paramIdx;
 
         // 0 means continue with last value
         if (request.has_c_scn() && request.c_scn() != 0) {
-            metadata->clientScn = request.c_scn();
+            clientScn = request.c_scn();
 
             if (request.has_c_idx())
-                metadata->clientIdx = request.c_idx();
-            paramIdx = ", idx: " + std::to_string(metadata->clientIdx);
+                clientIdx = request.c_idx();
+            paramIdx = ", idx: " + std::to_string(clientIdx);
         }
-        ctx->info(0, "client requested scn: " + metadata->clientScn.toString() + paramIdx);
+        ctx->info(0, "client requested scn: " + clientScn.toString() + paramIdx);
 
-        resetMessageQueue();
+        // Never answer REPLICATE when output after the requested cursor has already been released: the client would
+        // silently miss it. Fail before the client cursor or the queue is touched.
+        BuilderQueue* replayQueue;
+        uint64_t replayStart;
+        std::string reason;
+        if (!checkReplay(clientScn, clientIdx, replayQueue, replayStart, reason)) {
+            ctx->warning(60038, "can't continue from scn: " + clientScn.toString() + ", idx: " + std::to_string(clientIdx) +
+                         ", " + reason);
+            response.set_code(pb::ResponseCode::FAILED_START);
+            return;
+        }
+
+        metadata->clientScn = clientScn;
+        metadata->clientIdx = clientIdx;
+        resetMessageQueue(replayQueue, replayStart);
         response.set_code(pb::ResponseCode::REPLICATE);
         ctx->info(0, "streaming to client");
         streaming = true;

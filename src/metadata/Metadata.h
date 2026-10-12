@@ -118,6 +118,9 @@ namespace OpenLogReplicator {
         Scn nextScn{Scn::none()};
         Scn clientScn{Scn::none()};
         typeIdx clientIdx{0};
+        // rac-batch: sorted merged threads (empty in single-thread modes) and the schema cut stored with the acknowledged cursor
+        std::vector<uint16_t> racThreads;
+        Scn clientSchemaScn{Scn::none()};
         uint64_t checkpoints{0};
         Scn checkpointScn{Scn::none()};
         Scn lastCheckpointScn{Scn::none()};

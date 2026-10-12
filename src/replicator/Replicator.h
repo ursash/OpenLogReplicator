@@ -93,7 +93,7 @@ namespace OpenLogReplicator {
         void updateResetlogs();
         void wakeUp() override;
         void printStartMsg() const;
-        bool processArchivedRedoLogs();
+        virtual bool processArchivedRedoLogs();
         bool processOnlineRedoLogs();
 
         friend class OpenLogReplicator;

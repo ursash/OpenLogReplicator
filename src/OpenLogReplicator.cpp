@@ -44,6 +44,7 @@ along with OpenLogReplicator; see the file LICENSE;  If not see
 #include "parser/TransactionBuffer.h"
 #include "replicator/Replicator.h"
 #include "replicator/ReplicatorBatch.h"
+#include "replicator/ReplicatorRac.h"
 #include "state/StateDisk.h"
 #include "writer/WriterDiscard.h"
 #include "writer/WriterFile.h"
@@ -391,7 +392,11 @@ namespace OpenLogReplicator {
                     "server",
                     "redo-log",
                     "path-mapping",
-                    "log-archive-format"
+                    "log-archive-format",
+                    "rac-threads",
+                    "rac-dbid",
+                    "rac-standby-log",
+                    "rac-standby-live"
                 };
                 Ctx::checkJsonFields(configFileName, readerJson, readerNames);
             }
@@ -903,8 +908,61 @@ namespace OpenLogReplicator {
 
                 for (rapidjson::SizeType k = 0; k < redoLogBatchArrayJson.Size(); ++k)
                     replicator->addRedoLogsBatch(Ctx::getJsonFieldS(configFileName, Ctx::MAX_PATH_LENGTH, redoLogBatchArrayJson, "redo-log", k));
+            } else if (readerType == "rac-batch" || readerType == "rac-follow") {
+                if (startScn == Scn::none() || startSequence != Seq::none() || startTimeRel > 0 || !startTime.empty())
+                    throw ConfigurationException(30001, "bad JSON, reader type \"" + readerType + R"(" requires "start-scn" and no other start position)");
+                const rapidjson::Value& racThreadsJson = Ctx::getJsonFieldA(configFileName, readerJson, "rac-threads");
+                std::vector<uint16_t> racThreads;
+                for (rapidjson::SizeType k = 0; k < racThreadsJson.Size(); ++k) {
+                    const uint16_t thread = Ctx::getJsonFieldU16(configFileName, racThreadsJson, "rac-threads", k);
+                    if (thread == 0 || std::find(racThreads.begin(), racThreads.end(), thread) != racThreads.end())
+                        throw ConfigurationException(30001, "bad JSON, invalid \"rac-threads\" value: " + std::to_string(thread) +
+                                                     ", expected: distinct thread numbers > 0");
+                    racThreads.push_back(thread);
+                }
+                if (racThreads.empty())
+                    throw ConfigurationException(30001, "bad JSON, \"rac-threads\" is empty");
+                const uint32_t racDbid = Ctx::getJsonFieldU32(configFileName, readerJson, "rac-dbid");
+                metadata->racThreads = racThreads;
+                std::sort(metadata->racThreads.begin(), metadata->racThreads.end());
+
+                archGetLog = Replicator::archGetLogList;
+                auto* replicatorRac = new ReplicatorRac(ctx, archGetLog, builder, metadata, transactionBuffer, alias, name, racThreads, racDbid,
+                                                        readerType == "rac-follow");
+                replicator = replicatorRac;
+                builder->initialize();
+                replicator->initialize();
+
+                const rapidjson::Value& redoLogBatchArrayJson = Ctx::getJsonFieldA(configFileName, readerJson, "redo-log");
+                for (rapidjson::SizeType k = 0; k < redoLogBatchArrayJson.Size(); ++k)
+                    replicator->addRedoLogsBatch(Ctx::getJsonFieldS(configFileName, Ctx::MAX_PATH_LENGTH, redoLogBatchArrayJson, "redo-log", k));
+                if (readerJson.HasMember("rac-standby-log")) {
+                    const rapidjson::Value& standbyLogJson = Ctx::getJsonFieldA(configFileName, readerJson, "rac-standby-log");
+                    for (rapidjson::SizeType k = 0; k < standbyLogJson.Size(); ++k)
+                        replicatorRac->standbyLogs.push_back(Ctx::getJsonFieldS(configFileName, Ctx::MAX_PATH_LENGTH, standbyLogJson,
+                                                                                "rac-standby-log", k));
+                }
+                if (readerJson.HasMember("rac-standby-live")) {
+                    const uint64_t standbyLive = Ctx::getJsonFieldU64(configFileName, readerJson, "rac-standby-live");
+                    if (standbyLive > 1)
+                        throw ConfigurationException(30001, "bad JSON, invalid \"rac-standby-live\" value: " + std::to_string(standbyLive) +
+                                                     ", expected: one of {0, 1}");
+                    // A growing log is read like an online redo log: a block that fails its checksum while it is written is read again
+                    // after the verify delay instead of stopping processing
+                    if (standbyLive == 1 && (readerType != "rac-follow" || replicatorRac->standbyLogs.empty() || ctx->redoVerifyDelayUs == 0))
+                        throw ConfigurationException(30001, R"(bad JSON, "rac-standby-live": 1 requires reader type "rac-follow", )"
+                                                     R"(a non-empty "rac-standby-log" and "redo-verify-delay-us" > 0)");
+                    replicatorRac->standbyLive = standbyLive == 1;
+                }
             } else
-                throw ConfigurationException(30001, "bad JSON, invalid \"type\" value: " + readerType + R"(, expected: one of {"online", "offline", "batch"})");
+                throw ConfigurationException(30001, "bad JSON, invalid \"type\" value: " + readerType +
+                                             R"(, expected: one of {"online", "offline", "batch", "rac-batch", "rac-follow"})");
+
+            if (readerType != "rac-batch" && readerType != "rac-follow" && (readerJson.HasMember("rac-threads") || readerJson.HasMember("rac-dbid") ||
+                                                                            readerJson.HasMember("rac-standby-log") ||
+                                                                            readerJson.HasMember("rac-standby-live")))
+                throw ConfigurationException(30001, R"(bad JSON, "rac-threads", "rac-dbid", "rac-standby-log" and "rac-standby-live" are only valid for )"
+                                             R"(reader types "rac-batch" and "rac-follow")");
 
             if (sourceJson.HasMember("filter")) {
                 const rapidjson::Value& filterJson = Ctx::getJsonFieldO(configFileName, sourceJson, "filter");
@@ -1143,6 +1201,10 @@ namespace OpenLogReplicator {
             } else
                 throw ConfigurationException(30001, "bad JSON, invalid \"type\" value: " + writerType +
                                              R"(, expected: one of {"file", "kafka", "zeromq", "network", "discard"})");
+
+            if (auto* replicatorRac = dynamic_cast<ReplicatorRac*>(replicator2); replicatorRac != nullptr &&
+                    (writerType == "network" || writerType == "zeromq"))
+                replicatorRac->keepRunningAtEnd = true;
 
             writers.push_back(writer);
             writer->initialize();

@@ -42,7 +42,8 @@ list(APPEND ListCommon
 
 list(APPEND ListReplicator
         replicator/Replicator.cpp
-        replicator/ReplicatorBatch.cpp)
+        replicator/ReplicatorBatch.cpp
+        replicator/ReplicatorRac.cpp)
 
 list(APPEND ListLocales
         locales/CharacterSet.cpp

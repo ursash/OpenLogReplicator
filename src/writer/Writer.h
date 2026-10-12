@@ -32,6 +32,9 @@ namespace OpenLogReplicator {
     class Writer : public Thread {
     protected:
         static constexpr uint64_t CHECKPOINT_FILE_MAX_SIZE = 1024;
+        // Writer checkpoint cursor semantics version, see Writer::readCheckpoint
+        static constexpr uint64_t CURSOR_FORMAT = 2;
+        static constexpr uint64_t CURSOR_FORMAT_RAC = 3;
 
         std::string database;
         Builder* builder;
@@ -63,7 +66,8 @@ namespace OpenLogReplicator {
         virtual void writeCheckpoint(bool force);
         void readCheckpoint();
         void sortQueue();
-        void resetMessageQueue();
+        bool checkReplay(Scn scn, typeIdx idx, BuilderQueue*& replayQueue, uint64_t& replayStart, std::string& reason);
+        void resetMessageQueue(BuilderQueue* replayQueue, uint64_t replayStart);
 
     public:
         Writer(Ctx* newCtx, std::string newAlias, std::string newDatabase, Builder* newBuilder, Metadata* newMetadata);

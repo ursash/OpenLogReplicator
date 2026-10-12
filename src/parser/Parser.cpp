@@ -26,6 +26,7 @@ along with OpenLogReplicator; see the file LICENSE;  If not see
 #include "../common/DbTable.h"
 #include "../common/XmlCtx.h"
 #include "../common/exception/RedoLogException.h"
+#include "../common/exception/RuntimeException.h"
 #include "../common/metrics/Metrics.h"
 #include "../metadata/Metadata.h"
 #include "../metadata/Schema.h"
@@ -783,12 +784,21 @@ namespace OpenLogReplicator {
 
         Transaction* transaction = transactionBuffer->findTransaction(metadata->schema->xmlCtxDefault, redoLogRecord1->xid, redoLogRecord1->conId,
                                                                       true, ctx->isFlagSet(Ctx::REDO_FLAGS::SHOW_INCOMPLETE_TRANSACTIONS), false);
-        if (unlikely(transaction == nullptr))
+        if (unlikely(transaction == nullptr)) {
+            // No state means the begin was not replayed; its table set and system flag are unknown, so the earlier cut applies. Rolled back
+            // transactions emit nothing, and begins of sequence 0 are never tracked
+            if (requireBegin && redoLogRecord1->xid.sqn() != 0 && (redoLogRecord1->flg & OpCode::FLG_ROLLBACK_OP0504) == 0 &&
+                    redoLogRecord1->scn > std::min(metadata->firstDataScn, metadata->firstSchemaScn))
+                throw RuntimeException(10076, "transaction " + redoLogRecord1->xid.toString() + " (con " + std::to_string(redoLogRecord1->conId) +
+                                       ") committed at scn " + redoLogRecord1->scn.toString() + " in " + path + " after the data/schema cut, but its "
+                                       "begin is not in the replayed redo; replay must start earlier");
             return;
+        }
 
         transaction->log(ctx, "C   ", redoLogRecord1);
         transaction->commitTimestamp = lwnTimestamp;
-        transaction->commitScn = redoLogRecord1->scnRecord;
+        // Oracle commit SCN is the redo record header SCN, not the 5.4 vector header SCN (upstream 173871fb)
+        transaction->commitScn = redoLogRecord1->scn;
         transaction->commitSequence = sequence;
         if ((redoLogRecord1->flg & OpCode::FLG_ROLLBACK_OP0504) != 0)
             transaction->rollback = true;
@@ -819,6 +829,10 @@ namespace OpenLogReplicator {
                     ctx->stopSoft();
                 }
             } else {
+                if (requireBegin && !transaction->rollback)
+                    throw RuntimeException(10076, "transaction " + transaction->xid.toString() + " committed at scn " +
+                                           transaction->commitScn.toString() + " after the data/schema cut, but its begin is not in the "
+                                           "closed redo inventory; replay must start earlier");
                 if (ctx->metrics != nullptr) {
                     if (transaction->rollback)
                         ctx->metrics->emitTransactionsRollbackPartial(1);
@@ -1613,6 +1627,222 @@ namespace OpenLogReplicator {
         builder->flush();
         freeLwn();
         return reader->getRet();
+    }
+
+    // Closed-input RAC merge: the framing below follows parse() block by block (LWN header checks, record copy into LWN chunks,
+    // reader buffer release) but stops after each complete LWN and leaves analysis, checkpoints and builder flushes to the caller,
+    // which interleaves the records of several redo threads before any of them touches transaction or schema state.
+    // A start block after 2 must be the first block of an LWN
+    void Parser::frameStart(typeBlk startBlock) {
+        firstScn = reader->getFirstScn();
+        nextScn = reader->getNextScn();
+        if (unlikely(metadata->resetlogs != reader->getResetlogs()))
+            throw RedoLogException(50048, "invalid resetlogs value (found: " + std::to_string(reader->getResetlogs()) + ", expected: " +
+                                   std::to_string(metadata->resetlogs) + "): " + reader->fileName);
+
+        frameCurrentBlock = startBlock;
+        frameLwnEndBlock = startBlock;
+        frameLwnNumMax = 0;
+        frameLwnNumCnt = 0;
+        frameRecordLeftToCopy = 0;
+        frameRecordPos = 0;
+        frameLwnMember = nullptr;
+        framePieceScn = Scn::none();
+        frameLwnReturned = false;
+        frameLwnScn = Scn::none();
+        lwnCheckpointBlock = startBlock;
+        lwnSorted.clear();
+        frameBufferStart = FileOffset(startBlock, reader->getBlockSize());
+        reader->setBufferStartEnd(frameBufferStart, frameBufferStart);
+        ctx->info(0, "processing redo log: " + toString() + " offset: " + reader->getBufferStart().toString());
+        reader->setStatusRead();
+    }
+
+    // All framing state is kept in members and blocks are framed whole, so a PENDING return resumes at the next block, also inside a
+    // record or between the pieces of an LWN. Nothing of a partial LWN is visible to the caller: lwnSorted is only valid after LWN
+    Parser::FRAME Parser::frameNextLwn(bool wait) {
+        if (unlikely(frameLwnReturned))
+            throw RedoLogException(50051, "previous lwn not released: " + path);
+
+        while (!ctx->softShutdown) {
+            while (frameBufferStart < reader->getBufferEnd()) {
+                uint64_t redoBufferPos = (static_cast<uint64_t>(frameCurrentBlock) * reader->getBlockSize()) % Ctx::MEMORY_CHUNK_SIZE;
+                const uint64_t redoBufferNum =
+                        ((static_cast<uint64_t>(frameCurrentBlock) * reader->getBlockSize()) / Ctx::MEMORY_CHUNK_SIZE) % ctx->memoryChunksReadBufferMax;
+                const uint8_t* redoBlock = reader->redoBufferList[redoBufferNum] + redoBufferPos;
+                uint16_t blockOffset = 16U;
+
+                if (frameCurrentBlock == frameLwnEndBlock) {
+                    const uint8_t vld = redoBlock[blockOffset + 4U];
+                    if (unlikely((vld & 0x04) == 0))
+                        throw RedoLogException(50051, "did not find lwn at offset: " + frameBufferStart.toString());
+
+                    const uint32_t lwnSize = ctx->read32(redoBlock + blockOffset + 28U);
+                    frameLwnEndBlock = frameCurrentBlock + lwnSize;
+                    const Scn pieceScn = ctx->readScn(redoBlock + blockOffset + 40U);
+                    framePieceScn = pieceScn;
+                    lwnTimestamp = ctx->read32(redoBlock + blockOffset + 64U);
+
+                    if (frameLwnNumCnt == 0) {
+                        lwnCheckpointBlock = frameCurrentBlock;
+                        frameLwnNumMax = ctx->read16(redoBlock + blockOffset + 26U);
+                        if (unlikely(pieceScn < reader->getFirstScn() || (pieceScn > reader->getNextScn() && reader->getNextScn() != Scn::none())))
+                            throw RedoLogException(50049, "invalid lwn scn: " + pieceScn.toString());
+                    } else {
+                        const typeLwn lwnNumCur = ctx->read16(redoBlock + blockOffset + 26U);
+                        if (unlikely(lwnNumCur != frameLwnNumMax))
+                            throw RedoLogException(50050, "invalid lwn max: " + std::to_string(ctx->read16(redoBlock + blockOffset + 24U)) + "/" +
+                                                   std::to_string(lwnNumCur) + "/" + std::to_string(frameLwnNumMax));
+                    }
+                    ++frameLwnNumCnt;
+                }
+
+                while (blockOffset < reader->getBlockSize()) {
+                    if (frameRecordLeftToCopy == 0) {
+                        if (blockOffset + 20U >= reader->getBlockSize())
+                            break;
+
+                        const uint32_t recordSize4 = (static_cast<uint64_t>(ctx->read32(redoBlock + blockOffset)) + 3U) & 0xFFFFFFFC;
+                        if (recordSize4 > 0) {
+                            auto* recordSize = reinterpret_cast<uint64_t*>(lwnChunks[lwnAllocated - 1]);
+
+                            if (((*recordSize + sizeof(LwnMember) + recordSize4 + 7) & 0xFFFFFFF8) > Ctx::MEMORY_CHUNK_SIZE_MB * 1024 * 1024) {
+                                if (unlikely(lwnAllocated == MAX_LWN_CHUNKS))
+                                    throw RedoLogException(50052, "all " + std::to_string(MAX_LWN_CHUNKS) + " lwn buffers allocated");
+
+                                lwnChunks[lwnAllocated++] = ctx->getMemoryChunk(ctx->parserThread, Ctx::MEMORY::PARSER);
+                                ctx->parserThread->contextSet(Thread::CONTEXT::CPU);
+                                lwnAllocatedMax = std::max(lwnAllocated, lwnAllocatedMax);
+                                recordSize = reinterpret_cast<uint64_t*>(lwnChunks[lwnAllocated - 1]);
+                                *recordSize = sizeof(uint64_t);
+                            }
+
+                            if (unlikely(((*recordSize + sizeof(LwnMember) + recordSize4 + 7) & 0xFFFFFFF8) > Ctx::MEMORY_CHUNK_SIZE_MB * 1024 * 1024))
+                                throw RedoLogException(50053, "too big redo log record, size: " + std::to_string(recordSize4));
+
+                            frameLwnMember = reinterpret_cast<LwnMember*>(lwnChunks[lwnAllocated - 1] + *recordSize);
+                            *recordSize += (sizeof(LwnMember) + recordSize4 + 7) & 0xFFFFFFF8;
+                            frameLwnMember->pageOffset = blockOffset;
+                            frameLwnMember->scn = ctx->read32(redoBlock + blockOffset + 8U) |
+                                    (static_cast<uint64_t>(ctx->read16(redoBlock + blockOffset + 6U)) << 32);
+                            frameLwnMember->size = recordSize4;
+                            frameLwnMember->block = frameCurrentBlock;
+                            frameLwnMember->subScn = ctx->read16(redoBlock + blockOffset + 12U);
+
+                            if (unlikely(lwnSorted.size() + 1 >= MAX_RECORDS_IN_LWN))
+                                throw RedoLogException(50054, "all " + std::to_string(lwnSorted.size() + 1) + " records in lwn were used");
+                            lwnSorted.push_back(frameLwnMember);
+                        }
+
+                        frameRecordLeftToCopy = recordSize4;
+                        frameRecordPos = 0;
+                    }
+
+                    if (frameRecordLeftToCopy == 0)
+                        break;
+
+                    uint32_t toCopy;
+                    if (blockOffset + frameRecordLeftToCopy > reader->getBlockSize())
+                        toCopy = reader->getBlockSize() - blockOffset;
+                    else
+                        toCopy = frameRecordLeftToCopy;
+
+                    memcpy(reinterpret_cast<uint8_t*>(frameLwnMember) + sizeof(LwnMember) + frameRecordPos, redoBlock + blockOffset, toCopy);
+                    frameRecordLeftToCopy -= toCopy;
+                    blockOffset += toCopy;
+                    frameRecordPos += toCopy;
+                }
+
+                ++frameCurrentBlock;
+                frameBufferStart += reader->getBlockSize();
+                redoBufferPos += reader->getBlockSize();
+
+                bool lwnComplete = false;
+                if (frameCurrentBlock == frameLwnEndBlock && frameLwnNumCnt == frameLwnNumMax) {
+                    lwnComplete = true;
+                    frameLwnNumCnt = 0;
+                } else if (unlikely(frameLwnNumCnt > frameLwnNumMax))
+                    throw RedoLogException(50055, "lwn overflow: " + std::to_string(frameLwnNumCnt) + "/" + std::to_string(frameLwnNumMax));
+
+                if (redoBufferPos == Ctx::MEMORY_CHUNK_SIZE) {
+                    reader->bufferFree(ctx->parserThread, redoBufferNum);
+                    reader->confirmReadData(frameBufferStart);
+                }
+
+                if (lwnComplete) {
+                    if (unlikely(frameRecordLeftToCopy != 0))
+                        throw RedoLogException(50051, "record continues across lwn boundary at offset: " + frameBufferStart.toString());
+                    std::sort(lwnSorted.begin(), lwnSorted.end(), [](const LwnMember* a, const LwnMember* b) { return *a < *b; });
+                    frameLwnScn = framePieceScn;
+                    frameLwnReturned = true;
+                    return FRAME::LWN;
+                }
+            }
+
+            if (reader->checkFinished(ctx->parserThread, frameBufferStart, wait)) {
+                if (!wait && reader->getRet() == Reader::REDO_CODE::OVERWRITTEN)
+                    return FRAME::REUSED;
+                if (unlikely(reader->getRet() != Reader::REDO_CODE::FINISHED))
+                    throw RedoLogException(50051, "file: " + path + " - reading stopped with: " +
+                                           Reader::REDO_MSG[static_cast<uint>(reader->getRet())]);
+                if (unlikely(frameLwnNumCnt != 0 || frameRecordLeftToCopy != 0 || !lwnSorted.empty()))
+                    throw RedoLogException(50051, "file: " + path + " - incomplete lwn at end of file, offset: " + frameBufferStart.toString());
+                // The reader also reports FINISHED for an archived log when a block fails its checks; only reaching the header's NAB is an end
+                if (unlikely(frameCurrentBlock != reader->getNumBlocks()))
+                    throw RedoLogException(50051, "file: " + path + " - reading ended at block " + std::to_string(frameCurrentBlock) +
+                                           " before the end of the log at block " + std::to_string(reader->getNumBlocks()) +
+                                           "; the block is unreadable or invalid");
+                return FRAME::END;
+            }
+            if (!wait && frameBufferStart == reader->getBufferEnd())
+                return FRAME::PENDING;
+        }
+        return FRAME::END;
+    }
+
+    // First block of the first LWN not returned yet: that of a partly framed LWN, else the next block (the next LWN header)
+    typeBlk Parser::frameResumeBlock() const {
+        return frameLwnNumCnt > 0 ? lwnCheckpointBlock : frameCurrentBlock;
+    }
+
+    std::string Parser::framePosition() const {
+        return "block " + std::to_string(frameCurrentBlock) + ", lwn pieces " + std::to_string(frameLwnNumCnt) + "/" + std::to_string(frameLwnNumMax) +
+                ", records " + std::to_string(lwnSorted.size()) + ", record bytes left " + std::to_string(frameRecordLeftToCopy);
+    }
+
+    void Parser::analyzeFramed(LwnMember* lwnMember, Scn groupScn, bool newSession) {
+        // Session vectors (5.19/5.20) refer to the previous record of the same thread; never carry that pointer across records of
+        // another thread, which may have ended the transaction meanwhile
+        if (newSession)
+            lastTransaction = nullptr;
+        lwnScn = groupScn;
+
+        try {
+            analyzeLwn(lwnMember);
+        } catch (DataException& ex) {
+            if (ctx->isFlagSet(Ctx::REDO_FLAGS::IGNORE_DATA_ERRORS)) {
+                ctx->error(ex.code, ex.msg);
+                ctx->warning(60013, "forced to continue working in spite of error");
+            } else
+                throw DataException(ex.code, "runtime error, aborting further redo log processing: " + ex.msg);
+        } catch (RedoLogException& ex) {
+            if (ctx->isFlagSet(Ctx::REDO_FLAGS::IGNORE_DATA_ERRORS)) {
+                ctx->error(ex.code, ex.msg);
+                ctx->warning(60013, "forced to continue working in spite of error");
+            } else
+                throw RedoLogException(ex.code, "runtime error, aborting further redo log processing: " + ex.msg);
+        }
+    }
+
+    void Parser::releaseFramedLwn() {
+        frameLwnReturned = false;
+        lwnSorted.clear();
+        lastTransaction = nullptr;
+        freeLwn();
+    }
+
+    Time Parser::getLwnTimestamp() const {
+        return lwnTimestamp;
     }
 
     std::string Parser::toString() const {
