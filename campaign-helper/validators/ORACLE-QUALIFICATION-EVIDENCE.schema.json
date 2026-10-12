@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Live SRL oracle qualification evidence (minimum for validator INPUT_INCOMPLETE gate)",
+  "type": "object",
+  "required": ["contract_version", "run_id", "mode", "pin_ref", "dml_artifact", "final_state_artifact"],
+  "properties": {
+    "contract_version": {
+      "enum": [
+        "20261012T031500Z-expected-ops-v2",
+        "20261012T031500Z-expected-ops-v3"
+      ]
+    },
+    "run_id": { "type": "string" },
+    "mode": { "enum": ["smoke", "campaign"] },
+    "pin_ref": { "type": "string", "description": "path to workload-oracle-pin.json" },
+    "dml_artifact": { "type": "string" },
+    "final_state_artifact": { "type": "string" },
+    "expected_committed_counts": {
+      "type": "object",
+      "properties": {
+        "P101": { "type": "integer", "minimum": 6 },
+        "P102": { "type": "integer", "minimum": 6 },
+        "P103": { "type": "integer" },
+        "P105": { "type": "integer" },
+        "P106": { "type": "integer" },
+        "P107": { "type": "integer" }
+      }
+    },
+    "expected_forbidden_counts": {
+      "type": "object",
+      "properties": {
+        "rollback_full": { "type": "integer", "minimum": 1 },
+        "rollback_partial": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "capture_manifest_requirements": {
+      "type": "object",
+      "required": ["complete", "isolation_level", "records_min"],
+      "properties": {
+        "complete": { "const": true },
+        "isolation_level": { "const": "read_committed" },
+        "records_min": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "phase_receipts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "journal event_ids or stage markers proving P104/P099 boundaries when required"
+    }
+  }
+}

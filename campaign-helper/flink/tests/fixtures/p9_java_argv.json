@@ -1,0 +1,19 @@
+{
+  "note": "P9-shaped Flink 1.20.5 argv (fixture only; not live /proc). Used by flink_identity_parser --selftest.",
+  "jm_argv": [
+    "/usr/lib/jvm/java-11/bin/java",
+    "-cp",
+    "/opt/flink/lib/flink-dist-1.20.5.jar",
+    "org.apache.flink.runtime.entrypoint.StandaloneSessionClusterEntrypoint",
+    "--configDir",
+    "/tmp/flink-aux-smoke-demo/conf"
+  ],
+  "tm_argv": [
+    "/usr/lib/jvm/java-11/bin/java",
+    "-cp",
+    "/opt/flink/lib/flink-dist-1.20.5.jar",
+    "org.apache.flink.runtime.taskexecutor.TaskManagerRunner",
+    "--configDir",
+    "/tmp/flink-aux-smoke-demo/conf"
+  ]
+}

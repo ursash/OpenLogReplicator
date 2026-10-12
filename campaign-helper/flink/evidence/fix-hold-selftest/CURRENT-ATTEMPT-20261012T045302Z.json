@@ -1,0 +1,35 @@
+{
+  "attempt_id": "20261012T045302Z",
+  "cases": [
+    {
+      "case": "astra_harness",
+      "expected": "pass",
+      "got": "pass",
+      "exit_code": 0
+    },
+    {
+      "case": "submit_bind_selftest",
+      "expected": "pass",
+      "got": "pass",
+      "exit_code": 0
+    },
+    {
+      "case": "wait_ready_selftest",
+      "expected": "pass",
+      "got": "pass",
+      "exit_code": 0
+    },
+    {
+      "case": "identity_empty_pid_dir_fail",
+      "expected": "fail",
+      "got": "fail",
+      "exit_code": 2
+    },
+    {
+      "case": "identity_roles_ok",
+      "expected": "pass",
+      "got": "pass",
+      "exit_code": 0
+    }
+  ]
+}

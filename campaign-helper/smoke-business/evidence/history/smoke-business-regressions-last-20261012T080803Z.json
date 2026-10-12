@@ -1,0 +1,170 @@
+{
+  "suite": "smoke-business-regressions",
+  "generated_utc": "2026-10-12T08:07:41Z",
+  "validator_root": "/home/shihao/.paseo/worktrees/3u7e3tdp/live-srl-validator-20261012/campaign-helper/validators",
+  "smoke_slice_contract": "20261012-smoke-slice-v2",
+  "overall_pass": false,
+  "case_count": 14,
+  "failed_cases": [
+    "negative_lower_bound_vs_pre_workload_manifest_end_cut",
+    "negative_duplicate_identical_prep_extra_not_excluded"
+  ],
+  "cases": [
+    {
+      "name": "positive_component_smoke_pass",
+      "exit_code": 0,
+      "outcome": "SMOKE_BUSINESS_PASS",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": []
+    },
+    {
+      "name": "negative_missing_op_in_smoke_slice",
+      "exit_code": 1,
+      "outcome": "SMOKE_BUSINESS_FAIL",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": [
+        "CAPTURE_OFFSET_BOUNDS",
+        "MISSING_OPS",
+        "CAUSAL_ORDER"
+      ]
+    },
+    {
+      "name": "negative_duplicate_distinct_coord_valid_manifest",
+      "exit_code": 1,
+      "outcome": "SMOKE_BUSINESS_FAIL",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": [
+        "EXTRA_OPS",
+        "CAUSAL_ORDER"
+      ]
+    },
+    {
+      "name": "negative_wrong_kafka_value",
+      "exit_code": 1,
+      "outcome": "SMOKE_BUSINESS_FAIL",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": [
+        "MISSING_OPS",
+        "EXTRA_OPS",
+        "CAUSAL_TRANSITION"
+      ]
+    },
+    {
+      "name": "negative_uu_reorder_same_key",
+      "exit_code": 1,
+      "outcome": "SMOKE_BUSINESS_FAIL",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": [
+        "CAUSAL_TRANSITION",
+        "CAUSAL_TRANSITION"
+      ]
+    },
+    {
+      "name": "negative_capture_manifest_incomplete",
+      "exit_code": 1,
+      "outcome": "SMOKE_BUSINESS_FAIL",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": [
+        "CAPTURE_INCOMPLETE"
+      ]
+    },
+    {
+      "name": "negative_flink_final_wrong",
+      "exit_code": 1,
+      "outcome": "SMOKE_BUSINESS_FAIL",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": [
+        "FLINK_FINAL_STATE"
+      ]
+    },
+    {
+      "name": "negative_narrowed_end_vs_recovered_binding",
+      "exit_code": 2,
+      "outcome": "SMOKE_BUSINESS_INPUT_INCOMPLETE",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": [
+        "SMOKE_SLICE_UPPER_BOUND_MISMATCH",
+        "SMOKE_SLICE_NARROWED_END"
+      ]
+    },
+    {
+      "name": "negative_missing_pre_workload_cut_ref",
+      "exit_code": 2,
+      "outcome": "SMOKE_BUSINESS_INPUT_INCOMPLETE",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": [
+        "SMOKE_SLICE_BOUND_INVALID"
+      ]
+    },
+    {
+      "name": "negative_false_p099_claim_on_committed_smoke_row",
+      "exit_code": 2,
+      "outcome": "SMOKE_BUSINESS_INPUT_INCOMPLETE",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": [
+        "P099_PREP_SOURCE_OP_UNPROVEN"
+      ]
+    },
+    {
+      "name": "negative_lower_bound_vs_pre_workload_manifest_end_cut",
+      "exit_code": 2,
+      "outcome": "SMOKE_BUSINESS_INPUT_INCOMPLETE",
+      "assert_ok": false,
+      "assert_errors": [
+        "missing code 'SMOKE_SLICE_LOWER_BOUND_MISMATCH' in ['SMOKE_SLICE_INVALID']"
+      ],
+      "failure_codes": [
+        "SMOKE_SLICE_INVALID"
+      ]
+    },
+    {
+      "name": "negative_duplicate_identical_prep_extra_not_excluded",
+      "exit_code": 2,
+      "outcome": "SMOKE_BUSINESS_INPUT_INCOMPLETE",
+      "assert_ok": false,
+      "assert_errors": [
+        "exit 2!=1",
+        "outcome 'SMOKE_BUSINESS_INPUT_INCOMPLETE'!='SMOKE_BUSINESS_FAIL'"
+      ],
+      "failure_codes": [
+        "SOURCE_METADATA_MISSING",
+        "SOURCE_METADATA_MISSING",
+        "EXTRA_OPS",
+        "CAUSAL_ORDER"
+      ]
+    },
+    {
+      "name": "negative_rollback_tag_leak",
+      "exit_code": 1,
+      "outcome": "SMOKE_BUSINESS_FAIL",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": [
+        "MISSING_OPS",
+        "EXTRA_OPS",
+        "CAUSAL_TRANSITION",
+        "ROLLBACK_LEAK"
+      ]
+    },
+    {
+      "name": "negative_missing_smoke_slice_file",
+      "exit_code": 2,
+      "outcome": "SMOKE_BUSINESS_INPUT_INCOMPLETE",
+      "assert_ok": true,
+      "assert_errors": [],
+      "failure_codes": [
+        "INPUT_INCOMPLETE"
+      ]
+    }
+  ]
+}

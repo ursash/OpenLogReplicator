@@ -1,0 +1,26 @@
+{
+  "destination_workspace": "wks_d6acc526da200e61",
+  "destination_cwd": "/home/shihao/Projects/github/OpenLogReplicator",
+  "retired_workspaces": [
+    {
+      "workspaceId": "wks_5726b7aa1b4c25f7",
+      "archivedAgentIds": [
+        "08da214f-8ed4-440a-a4d3-3fd48c66309c",
+        "2d447f39-4eb8-4a02-97a7-2cef3d3d1730"
+      ],
+      "removedDirectory": true
+    },
+    {
+      "workspaceId": "wks_26f991df931acfbd",
+      "archivedAgentIds": [
+        "9ab701b6-28e0-414f-bd81-df1e40f1396b",
+        "f9eb9d53-4e26-421f-afbb-e49e5ad8a186"
+      ],
+      "removedDirectory": true
+    }
+  ],
+  "paused_agent": "2d447f39-4eb8-4a02-97a7-2cef3d3d1730",
+  "parent_acknowledgement": "8e6eafd0 confirmed new routing and retained unfinished R2 follow-up",
+  "builder_connection_failures": 2,
+  "migration_executed_by": "Lead, Builder profile unavailable exception"
+}

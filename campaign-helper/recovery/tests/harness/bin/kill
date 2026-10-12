@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+if [ -n "${DG_R3_TEST_STATE:-}" ] && [ "${1:-}" = "-INT" ] && [ -n "${2:-}" ]; then
+  if [ -f "$DG_R3_TEST_STATE/force_stop_fail" ]; then
+    exit 0
+  fi
+  orig=$(cat "$DG_R3_TEST_STATE/olr.pid" 2>/dev/null || true)
+  if [ "$orig" = "${2:-}" ]; then
+    touch "$DG_R3_TEST_STATE/olr_dead"
+    rm -f "$DG_R3_TEST_STATE/listening"
+    mkdir -p "$DG_R3_TEST_STATE/proc/${2}/"
+    touch "$DG_R3_TEST_STATE/proc/${2}/gone"
+  fi
+  exit 0
+fi
+command kill "$@"

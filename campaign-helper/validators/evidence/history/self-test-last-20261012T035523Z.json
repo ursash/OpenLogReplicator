@@ -1,0 +1,975 @@
+{
+  "suite": "live-srl-validator-self-test",
+  "generated_utc": "2026-10-12T03:48:33Z",
+  "builder_samples_ref": "/home/shihao/Projects/oracle-cdc-benchmark/olr-rac/evidence/live-srl-e2e-20261012T031500Z/manifests/samples",
+  "primary_final_fixture": "fixtures/workload-expected-final-state.smoke.json",
+  "incomplete_final_fixture": "fixtures/workload-expected-final-state.smoke.incomplete.json",
+  "smoke_gate": "HOLD",
+  "integration_freeze": "not_accepted",
+  "overall_pass": true,
+  "case_count": 30,
+  "failed_cases": [],
+  "expectations": {
+    "positive_exit": 0,
+    "business_negative_exit": 1,
+    "input_negative_exit": 2,
+    "business_negatives_require_qualification_pass": true
+  },
+  "cases": [
+    {
+      "name": "qualification_intentional_incomplete_final_fixture",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "INCOMPLETE",
+      "qualification_issues": [
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state coverage EV: present keys [1201984, 1201994] != DML rebuild [1201984, 1201994, 1401984, 1401985, 1401986, 1401987, 1401988, 1401989, 1401990, 1401992, 1401993]"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state coverage PP: present keys [] != DML rebuild [1]"
+        }
+      ],
+      "failure_codes": [
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION"
+      ],
+      "failures": [
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state coverage EV: present keys [1201984, 1201994] != DML rebuild [1201984, 1201994, 1401984, 1401985, 1401986, 1401987, 1401988, 1401989, 1401990, 1401992, 1401993]"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state coverage PP: present keys [] != DML rebuild [1]"
+        }
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "qualification_status": "INCOMPLETE",
+        "failure_codes": [
+          "ORACLE_QUALIFICATION"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "hold_regression",
+      "exit_code": 0,
+      "status": "PASS",
+      "assert_ok": true,
+      "assert_errors": [],
+      "expected": {
+        "exit_code": 0,
+        "status": "PASS",
+        "failure_codes": []
+      }
+    },
+    {
+      "name": "qualification_builder_smoke_samples_complete",
+      "exit_code": 0,
+      "status": "PASS",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [],
+      "expected": {
+        "exit_code": 0,
+        "status": "PASS",
+        "qualification_status": "PASS",
+        "failure_codes": []
+      },
+      "assert_ok": true,
+      "assert_errors": [],
+      "note": "copied from manifests/samples; not an accepted integration freeze"
+    },
+    {
+      "name": "positive_builder_smoke_samples",
+      "exit_code": 0,
+      "status": "PASS",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [],
+      "failures": [],
+      "expected": {
+        "exit_code": 0,
+        "status": "PASS",
+        "qualification_status": "PASS",
+        "failure_codes": []
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "positive_java_collector_manifest_fields",
+      "exit_code": 0,
+      "status": "PASS",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [],
+      "failures": [],
+      "expected": {
+        "exit_code": 0,
+        "status": "PASS",
+        "qualification_status": "PASS",
+        "failure_codes": []
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "positive_eos_offset_gap_manifest",
+      "exit_code": 0,
+      "status": "PASS",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [],
+      "failures": [],
+      "expected": {
+        "exit_code": 0,
+        "status": "PASS",
+        "qualification_status": "PASS",
+        "failure_codes": []
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "positive_delete_plus_transport_tombstone",
+      "exit_code": 0,
+      "status": "PASS",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [],
+      "failures": [],
+      "expected": {
+        "exit_code": 0,
+        "status": "PASS",
+        "qualification_status": "PASS",
+        "failure_codes": []
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_drop_event",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "MISSING_OPS",
+        "CAUSAL_ORDER"
+      ],
+      "failures": [
+        {
+          "code": "MISSING_OPS",
+          "detail": "unmatched op_ids: ['E10101']"
+        },
+        {
+          "code": "CAUSAL_ORDER",
+          "detail": "key ('EV', 1201984): expected 3 transitions, got 2"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "MISSING_OPS"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_duplicate_event",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "EXTRA_OPS",
+        "CAUSAL_ORDER"
+      ],
+      "failures": [
+        {
+          "code": "EXTRA_OPS",
+          "detail": "unexpected kafka ops: 1 rows"
+        },
+        {
+          "code": "CAUSAL_ORDER",
+          "detail": "key ('EV', 1201984): expected 3 transitions, got 4"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "EXTRA_OPS"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_capture_duplicate_coordinate",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "CAPTURE_DUPLICATE_COORD"
+      ],
+      "failures": [
+        {
+          "code": "CAPTURE_DUPLICATE_COORD",
+          "detail": "duplicate topic/partition/offset: [('ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV', 0, 0)]"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "CAPTURE_DUPLICATE_COORD"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_wrong_key",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "MISSING_OPS",
+        "EXTRA_OPS",
+        "CAUSAL_ORDER"
+      ],
+      "failures": [
+        {
+          "code": "MISSING_OPS",
+          "detail": "unmatched op_ids: ['E10101']"
+        },
+        {
+          "code": "EXTRA_OPS",
+          "detail": "unexpected kafka ops: 1 rows"
+        },
+        {
+          "code": "CAUSAL_ORDER",
+          "detail": "key ('EV', 1201984): expected 3 transitions, got 2"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "MISSING_OPS"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_wrong_value",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "MISSING_OPS",
+        "EXTRA_OPS",
+        "CAUSAL_TRANSITION"
+      ],
+      "failures": [
+        {
+          "code": "MISSING_OPS",
+          "detail": "unmatched op_ids: ['E10101']"
+        },
+        {
+          "code": "EXTRA_OPS",
+          "detail": "unexpected kafka ops: 1 rows"
+        },
+        {
+          "code": "CAUSAL_TRANSITION",
+          "detail": "key ('EV', 1201984) step 1: op_id E10101 full row transition mismatch (not just op label)"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "MISSING_OPS"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_pad_value_when_oracle_null_fields",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "MISSING_OPS",
+        "EXTRA_OPS",
+        "CAUSAL_TRANSITION"
+      ],
+      "failures": [
+        {
+          "code": "MISSING_OPS",
+          "detail": "unmatched op_ids: ['E10301']"
+        },
+        {
+          "code": "EXTRA_OPS",
+          "detail": "unexpected kafka ops: 1 rows"
+        },
+        {
+          "code": "CAUSAL_TRANSITION",
+          "detail": "key ('EV', 1401984) step 1: op_id E10301 full row transition mismatch (not just op label)"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "MISSING_OPS"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_varchar_pad_001_vs_1",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "MISSING_OPS",
+        "EXTRA_OPS",
+        "CAUSAL_TRANSITION"
+      ],
+      "failures": [
+        {
+          "code": "MISSING_OPS",
+          "detail": "unmatched op_ids: ['E10101']"
+        },
+        {
+          "code": "EXTRA_OPS",
+          "detail": "unexpected kafka ops: 1 rows"
+        },
+        {
+          "code": "CAUSAL_TRANSITION",
+          "detail": "key ('EV', 1201984) step 1: op_id E10101 full row transition mismatch (not just op label)"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "MISSING_OPS"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_reorder",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "CAUSAL_TRANSITION",
+        "CAUSAL_TRANSITION"
+      ],
+      "failures": [
+        {
+          "code": "CAUSAL_TRANSITION",
+          "detail": "key ('EV', 1201984) step 1: op_id E10101 full row transition mismatch (not just op label)"
+        },
+        {
+          "code": "CAUSAL_TRANSITION",
+          "detail": "key ('EV', 1201984) step 2: op_id E10102 full row transition mismatch (not just op label)"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "CAUSAL_TRANSITION"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_same_key_uu_content_swap",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "CAUSAL_TRANSITION",
+        "CAUSAL_TRANSITION"
+      ],
+      "failures": [
+        {
+          "code": "CAUSAL_TRANSITION",
+          "detail": "key ('EV', 1201984) step 2: op_id E10102 full row transition mismatch (not just op label)"
+        },
+        {
+          "code": "CAUSAL_TRANSITION",
+          "detail": "key ('EV', 1201984) step 3: op_id E10103 full row transition mismatch (not just op label)"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "CAUSAL_TRANSITION"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_rollback_leak",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "EXTRA_OPS",
+        "ROLLBACK_LEAK"
+      ],
+      "failures": [
+        {
+          "code": "EXTRA_OPS",
+          "detail": "unexpected kafka ops: 1 rows"
+        },
+        {
+          "code": "ROLLBACK_LEAK",
+          "detail": "forbidden TAG ROLLED_BACK in kafka capture"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "ROLLBACK_LEAK"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_truncated_capture",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "MISSING_OPS",
+        "CAUSAL_ORDER"
+      ],
+      "failures": [
+        {
+          "code": "MISSING_OPS",
+          "detail": "unmatched op_ids: ['E1050002', 'E1050003', 'E1050004']"
+        },
+        {
+          "code": "CAUSAL_ORDER",
+          "detail": "key ('PP', 1): expected 4 transitions, got 1"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "MISSING_OPS"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_flink_state",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "FLINK_FINAL_STATE"
+      ],
+      "failures": [
+        {
+          "code": "FLINK_FINAL_STATE",
+          "detail": "CTR: expected 4, got 0"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "FLINK_FINAL_STATE"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_wrong_table_topic",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "MISSING_OPS",
+        "CAUSAL_ORDER"
+      ],
+      "failures": [
+        {
+          "code": "MISSING_OPS",
+          "detail": "unmatched op_ids: ['E10101']"
+        },
+        {
+          "code": "CAUSAL_ORDER",
+          "detail": "key ('EV', 1201984): expected 3 transitions, got 2"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "MISSING_OPS"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "positive_schema_history_control_ignored",
+      "exit_code": 0,
+      "status": "PASS",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [],
+      "failures": [],
+      "expected": {
+        "exit_code": 0,
+        "status": "PASS",
+        "qualification_status": "PASS",
+        "failure_codes": []
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_capture_manifest_incomplete",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "CAPTURE_INCOMPLETE"
+      ],
+      "failures": [
+        {
+          "code": "CAPTURE_INCOMPLETE",
+          "detail": "manifest complete=false"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "CAPTURE_INCOMPLETE"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_capture_isolation",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "CAPTURE_ISOLATION"
+      ],
+      "failures": [
+        {
+          "code": "CAPTURE_ISOLATION",
+          "detail": "isolation 'read_uncommitted' != read_committed"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "CAPTURE_ISOLATION"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_capture_count_mismatch",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "CAPTURE_COUNT_MISMATCH"
+      ],
+      "failures": [
+        {
+          "code": "CAPTURE_COUNT_MISMATCH",
+          "detail": "manifest records=24 jsonl lane rows=25"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "CAPTURE_COUNT_MISMATCH"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_capture_end_not_reached",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "CAPTURE_END_NOT_REACHED",
+        "CAPTURE_END_NOT_REACHED"
+      ],
+      "failures": [
+        {
+          "code": "CAPTURE_END_NOT_REACHED",
+          "detail": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV p0: final_position 20 != end 21"
+        },
+        {
+          "code": "CAPTURE_END_NOT_REACHED",
+          "detail": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.PP p0: final_position 24 != end 25"
+        }
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "CAPTURE_END_NOT_REACHED"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "qualification_truncated_oracle_ops",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "INCOMPLETE",
+      "qualification_issues": [
+        {
+          "code": "ORACLE_TRUNCATED",
+          "detail": "P103 committed 0 < expected 9 for short_tx_n=10"
+        },
+        {
+          "code": "ORACLE_FORBIDDEN_SET_INCOMPLETE",
+          "detail": "expected rollback forbidden ops (partial + full) missing"
+        },
+        {
+          "code": "ORACLE_TRUNCATED",
+          "detail": "P101 burst incomplete (<6 committed ops)"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck EV ID 1201984: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck EV ID 1201994: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck EV ID 1401984: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck EV ID 1401985: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck EV ID 1401986: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck EV ID 1401987: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck EV ID 1401988: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck EV ID 1401989: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck EV ID 1401990: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck EV ID 1401992: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck EV ID 1401993: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state/DML crosscheck PP ID 1: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state coverage EV: present keys [1201984, 1201994, 1401984, 1401985, 1401986, 1401987, 1401988, 1401989, 1401990, 1401992, 1401993] != DML rebuild [1201984]"
+        },
+        {
+          "code": "ORACLE_FINAL_STATE_CROSSCHECK",
+          "detail": "final_state coverage PP: present keys [1] != DML rebuild []"
+        }
+      ],
+      "failure_codes": [
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION",
+        "ORACLE_QUALIFICATION"
+      ],
+      "failures": [
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_TRUNCATED: P103 committed 0 < expected 9 for short_tx_n=10"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FORBIDDEN_SET_INCOMPLETE: expected rollback forbidden ops (partial + full) missing"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_TRUNCATED: P101 burst incomplete (<6 committed ops)"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck EV ID 1201984: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck EV ID 1201994: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck EV ID 1401984: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck EV ID 1401985: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck EV ID 1401986: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck EV ID 1401987: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck EV ID 1401988: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck EV ID 1401989: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck EV ID 1401990: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck EV ID 1401992: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck EV ID 1401993: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state/DML crosscheck PP ID 1: artifact != rebuild from committed ops"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state coverage EV: present keys [1201984, 1201994, 1401984, 1401985, 1401986, 1401987, 1401988, 1401989, 1401990, 1401992, 1401993] != DML rebuild [1201984]"
+        },
+        {
+          "code": "ORACLE_QUALIFICATION",
+          "detail": "ORACLE_FINAL_STATE_CROSSCHECK: final_state coverage PP: present keys [1] != DML rebuild []"
+        }
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "qualification_status": "INCOMPLETE",
+        "failure_codes": [
+          "ORACLE_QUALIFICATION"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_malformed_final_state_json",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "unknown",
+      "qualification_issues": [],
+      "failure_codes": [
+        "ORACLE_INVALID"
+      ],
+      "failures": [
+        {
+          "code": "ORACLE_INVALID",
+          "detail": "final_state JSON parse: Expecting property name enclosed in double quotes: line 1 column 3 (char 2)"
+        }
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "qualification_status": null,
+        "failure_codes": [
+          "ORACLE_INVALID"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_final_present_without_after",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "unknown",
+      "qualification_issues": [],
+      "failure_codes": [
+        "ORACLE_INVALID"
+      ],
+      "failures": [
+        {
+          "code": "ORACLE_INVALID",
+          "detail": "final_state entries[0]: present=true requires after"
+        }
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "qualification_status": null,
+        "failure_codes": [
+          "ORACLE_INVALID"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_kafka_parser_error",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "qualification_issues": [],
+      "failure_codes": [
+        "KAFKA_PARSE"
+      ],
+      "failures": [
+        {
+          "code": "KAFKA_PARSE",
+          "detail": "malformed capture rows: line 1: line not JSON: Expecting property name enclosed in double quotes: line 1 column 3 (char 2)"
+        }
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "qualification_status": "PASS",
+        "failure_codes": [
+          "KAFKA_PARSE"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "negative_no_expected_events",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "unknown",
+      "qualification_issues": [],
+      "failure_codes": [
+        "INPUT_INCOMPLETE"
+      ],
+      "failures": [
+        {
+          "code": "INPUT_INCOMPLETE",
+          "detail": "missing --expected-events"
+        }
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "qualification_status": "unknown",
+        "failure_codes": [
+          "INPUT_INCOMPLETE"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    }
+  ]
+}

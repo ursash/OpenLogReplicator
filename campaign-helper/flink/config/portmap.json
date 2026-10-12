@@ -1,0 +1,26 @@
+{
+  "contract_version": "20261012T031500Z-v1",
+  "modes": {
+    "campaign": {
+      "description": "MAIN shared runtime; REST 28120 only with SHARED_RUNTIME_ROOT",
+      "required_runtime_root": "/opt/oracle-cdc-benchmark/flink-live-srl-20261012T031500Z",
+      "rest_port": 28120,
+      "jobmanager_rpc_port": 28121,
+      "taskmanager_rpc_port": 28122,
+      "taskmanager_data_port": 28123,
+      "blob_server_port": 28124,
+      "reserved_do_not_use_for_aux": [28120, 28132, 28133]
+    },
+    "aux": {
+      "description": "Isolated smoke; REST >= 28140; never campaign REST",
+      "default_rest_port": 28140,
+      "rest_port": 28140,
+      "jobmanager_rpc_port": 28141,
+      "taskmanager_rpc_port": 28142,
+      "taskmanager_data_port": 28143,
+      "blob_server_port": 28144,
+      "forbidden_rest_ports": [28120, 28132, 28133]
+    }
+  },
+  "note": "Aux worker does not start campaign mode on 28120 in this round."
+}

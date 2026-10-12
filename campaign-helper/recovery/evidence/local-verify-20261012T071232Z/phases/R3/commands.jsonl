@@ -1,0 +1,2 @@
+{"utc":"2026-10-12T07:13:04.036Z","cmd":"dg_live_srl.sh stop","rc":0}
+{"utc":"2026-10-12T07:13:04.060Z","cmd":"dg_live_srl.sh start","rc":0}

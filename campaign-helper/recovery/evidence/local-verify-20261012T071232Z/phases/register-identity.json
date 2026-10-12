@@ -1,0 +1,9 @@
+{
+  "topic.prefix": "ocr370.live.srl.MOCK.recovery",
+  "database.connection.adapter": "olr",
+  "openlogreplicator.source": "ORCLRAC",
+  "openlogreplicator.host": "127.0.0.1",
+  "openlogreplicator.port": "39433",
+  "provide.transaction.metadata": "true",
+  "exactly.once.support": "required"
+}

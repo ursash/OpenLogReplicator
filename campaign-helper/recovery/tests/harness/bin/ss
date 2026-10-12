@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+if [ -z "${DG_R3_TEST_STATE:-}" ]; then
+  exec command ss "$@"
+fi
+port=${OLR_PORT:-39233}
+if [ -f "$DG_R3_TEST_STATE/listener_wrong_pid" ]; then
+  echo "LISTEN 0 128 *:${port} *:* users:((\"OpenLogReplicator\",pid=1,fd=1))"
+  exit 0
+fi
+if [ -f "$DG_R3_TEST_STATE/listening" ] && [ -f "$DG_R3_TEST_STATE/olr.pid" ]; then
+  pid=$(cat "$DG_R3_TEST_STATE/olr.pid")
+  echo "LISTEN 0 128 *:${port} *:* users:((\"OpenLogReplicator\",pid=${pid},fd=1))"
+  exit 0
+fi
+exit 0

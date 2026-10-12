@@ -1,0 +1,424 @@
+{
+  "suite": "astra-v71-current-attempt",
+  "generated_utc": "2026-10-12T05:21:09Z",
+  "scope": [
+    "commit_original_artifact_identity",
+    "oracle_xid_encoding"
+  ],
+  "overall_pass": true,
+  "case_count": 13,
+  "failed_cases": [],
+  "cases": [
+    {
+      "name": "v71_commit_missing_schema",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_COMMIT_RECORD_INCOMPLETE",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_COMMIT_RECORD_INCOMPLETE"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_commit_schema_other",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_COMMIT_RECORD_MISMATCH",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_COMMIT_RECORD_MISMATCH"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_commit_missing_lane",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_COMMIT_RECORD_INCOMPLETE",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_COMMIT_RECORD_INCOMPLETE"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_commit_missing_table",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_COMMIT_RECORD_INCOMPLETE",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_COMMIT_RECORD_INCOMPLETE"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_commit_missing_key",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_COMMIT_RECORD_INCOMPLETE",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_COMMIT_RECORD_INCOMPLETE"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_commit_missing_op",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_COMMIT_RECORD_INCOMPLETE",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_COMMIT_RECORD_INCOMPLETE"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_commit_wrong_after_val",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_COMMIT_RECORD_MISMATCH",
+        "PROVENANCE_COMMIT_RECORD_MISMATCH",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT",
+        "PROVENANCE_ORACLE_ARTIFACT"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_COMMIT_RECORD_MISMATCH"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_business_kafka_wrong_val_exit_fail",
+      "exit_code": 1,
+      "status": "FAIL",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_EXPECTED_OP_MISMATCH",
+        "MISSING_OPS",
+        "EXTRA_OPS",
+        "CAUSAL_TRANSITION"
+      ],
+      "expected": {
+        "exit_code": 1,
+        "status": "FAIL",
+        "failure_codes": [
+          "CAUSAL_TRANSITION"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_xid_dual_raw_alias_contradiction",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_XID_RAW_INCONSISTENT"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_XID_RAW_INCONSISTENT"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_xid_fractional_xidusn",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_XID_MISMATCH"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_XID_MISMATCH"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_xid_bool_xidusn",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_ORACLE_FIELD_MISMATCH",
+        "PROVENANCE_XID_MISMATCH"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_XID_MISMATCH"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_xid_usn_overflow",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_ORACLE_FIELD_MISMATCH",
+        "PROVENANCE_XID_MISMATCH"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_XID_MISMATCH"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    },
+    {
+      "name": "v71_xid_positive_single_raw_bytes_only_on_binding",
+      "exit_code": 2,
+      "status": "INPUT_INCOMPLETE",
+      "qualification_status": "PASS",
+      "failure_codes": [
+        "PROVENANCE_ORACLE_FIELD_NULL",
+        "PROVENANCE_ORACLE_FIELD_NULL",
+        "PROVENANCE_ORACLE_FIELD_NULL",
+        "PROVENANCE_XID_MISMATCH"
+      ],
+      "expected": {
+        "exit_code": 2,
+        "status": "INPUT_INCOMPLETE",
+        "failure_codes": [
+          "PROVENANCE_ORACLE_FIELD_NULL"
+        ]
+      },
+      "assert_ok": true,
+      "assert_errors": []
+    }
+  ]
+}

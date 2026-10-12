@@ -1,0 +1,6 @@
+{
+  "phase": "R2",
+  "qualified": true,
+  "offset_watermark": "mock-r2",
+  "business_binding": "worker-relaunch"
+}

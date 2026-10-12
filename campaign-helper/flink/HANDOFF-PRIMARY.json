@@ -1,0 +1,27 @@
+{
+  "module": "campaign-helper/flink",
+  "contract_version": "20261012T031500Z-v1",
+  "delta": "olr-rac/evidence/live-srl-e2e-20261012T031500Z/manifests/FLINK-RUNTIME-DELTA-v1.json",
+  "lead_agent_id": "8e6eafd0-cb7b-41ff-b193-8fb2f2e4e8cf",
+  "primary_builder_agent_id": "aa4ee83f-df28-4f56-a0be-24807e1e80f0",
+  "primary_builder_workspace": "/home/shihao/Projects/oracle-cdc-benchmark",
+  "archived_builder_agent_id": "2f4b61e5-4e15-4ee5-94c7-f1baa114194d",
+  "flink_aux_worktree": "/home/shihao/.paseo/worktrees/3u7e3tdp/live-srl-flink-20261012/campaign-helper/flink",
+  "integrate_copy_target": "olr-rac/lab/live_srl_e2e/cdp/flink/ (from frozen module; replaces flink_smoke.sh placeholder)",
+  "campaign_runtime": {
+    "root": "/opt/oracle-cdc-benchmark/flink-live-srl-20261012T031500Z",
+    "rest_port": 28120,
+    "bootstrap_servers": "10.129.80.147:9092"
+  },
+  "aux_smoke_only": {
+    "topic_prefix_pattern": "ocr370.live.srl.aux.<AUX_RUN_ID>",
+    "checkpoint_root_pattern": "/tmp/flink-aux-smoke-<AUX_RUN_ID>",
+    "rest_port_gte": 28140,
+    "forbidden_ports": [28120, 28132, 28133]
+  },
+  "frozen_sha256_file": "FROZEN-SHA256.txt",
+  "aux_evidence_latest": "evidence/aux-aux20261012T042200Z",
+  "aux_smoke_result": "PASS_HISTORICAL",
+  "hold_fix_selftest": "evidence/fix-hold-selftest/NEGATIVE-RESULTS.json",
+  "note": "Do not archive aux proof on CDP until MAIN copies evidence/ + FROZEN-SHA256.txt into oracle-cdc-benchmark. Resubmit-bound job_ids required for new verify rounds."
+}

@@ -1,0 +1,41 @@
+{
+  "contract_version": "20261012T031500Z-expected-ops-v3",
+  "run_id": "20261012T031500Z",
+  "mode": "smoke",
+  "pin_ref": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/workload-oracle-pin.json",
+  "dml_artifact": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/workload-expected-operations.smoke.jsonl",
+  "final_state_artifact": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/workload-expected-final-state.smoke.json",
+  "pin_sha256": "5a917e1db0266b74b3479bf0ac91d176772ba98d7efbb6c200b00c96fc5eebd7",
+  "dml_sha256": "0c1b529f63bdac131c9a5123f380c8b9c8cdeaa7bbd31e6df1d2aac2c61741ae",
+  "final_state_sha256": "069153a633f590b819787803059d565b1470852226d6372aeec0ef798a3e5e0e",
+  "expected_committed_counts": {
+    "P101": 6,
+    "P102": 6,
+    "P103": 9,
+    "P105": 4
+  },
+  "expected_forbidden_counts": {
+    "rollback_partial": 1,
+    "rollback_full": 2
+  },
+  "expected_committed_table_counts": {
+    "P101/EV": 6,
+    "P102/EV": 6,
+    "P103/EV": 9,
+    "P105/PP": 4
+  },
+  "capture_manifest_requirements": {
+    "complete": true,
+    "isolation_level": "read_committed",
+    "records_min": 1
+  },
+  "phase_receipts": [
+    "P099:phase_boundary",
+    "P100:phase_boundary",
+    "W101:sql_commit",
+    "W102:sql_commit",
+    "P103:key_anchor",
+    "W104:sql_commit",
+    "P105:phase_boundary"
+  ]
+}

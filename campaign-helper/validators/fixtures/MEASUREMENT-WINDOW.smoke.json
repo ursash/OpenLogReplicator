@@ -1,0 +1,56 @@
+{
+  "run_id": "20261012T031500Z",
+  "contract_version": "20261012T031500Z-measure-v1",
+  "source_measured_dml_from_utc": "2026-10-12T03:20:00.000Z",
+  "source_phases_in_oracle": [
+    "P101",
+    "P102",
+    "P103",
+    "P107",
+    "P105",
+    "P106"
+  ],
+  "source_phases_excluded": [
+    "P099"
+  ],
+  "consumer_scope": {
+    "baseline_topic_prefix": "ocr370.live.srl.20261012T031500Z.baseline",
+    "recovery_topic_prefix": "ocr370.live.srl.20261012T031500Z.recovery",
+    "isolation": "read_committed",
+    "rule": "events_before_both_lane_connectors_RUNNING_and_post_bootstrap_catch_up_are_out_of_scope",
+    "no_offset_topic_reset": true,
+    "no_schema_history_reset": true
+  },
+  "lanes": {
+    "baseline": {
+      "consumer_start_utc": "2026-10-12T03:20:05.000Z",
+      "catch_up_after_p099_utc": "2026-10-12T03:19:30.000Z",
+      "p099_catch_up_position": {
+        "topic": "baseline.prep",
+        "partition": 0,
+        "offset": 99
+      }
+    },
+    "recovery": {
+      "consumer_start_utc": "2026-10-12T03:20:05.000Z",
+      "catch_up_after_p099_utc": "2026-10-12T03:19:30.000Z",
+      "p099_catch_up_position": {
+        "topic": "recovery.prep",
+        "partition": 0,
+        "offset": 99
+      }
+    }
+  },
+  "partition_capture_bounds": [
+    {
+      "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+      "partition": 0,
+      "capture_start_utc": "2026-10-12T03:20:05.000Z",
+      "capture_end_utc": "2026-10-12T03:25:00.000Z",
+      "manifest_ref_sha256": "placeholder-partition-bound-sha256"
+    }
+  ],
+  "artifact_hashes": {
+    "measurement_window_sha256": "placeholder-mw-sha256"
+  }
+}

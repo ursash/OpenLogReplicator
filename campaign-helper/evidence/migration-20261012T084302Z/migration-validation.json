@@ -1,0 +1,70 @@
+{
+  "static": {
+    "python_count": 45,
+    "shell_count": 35,
+    "errors": []
+  },
+  "tests": [
+    {
+      "name": "validators",
+      "command": [
+        "python3",
+        "-B",
+        "validators/validate_lane.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "temporary_copy_cleaned": true,
+      "case_count": 30,
+      "overall_pass": true,
+      "failed_cases": []
+    },
+    {
+      "name": "smoke-business",
+      "command": [
+        "python3",
+        "-B",
+        "smoke-business/smoke_business.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "temporary_copy_cleaned": true,
+      "case_count": 14,
+      "overall_pass": true,
+      "failed_cases": []
+    },
+    {
+      "name": "flink-identity",
+      "command": [
+        "python3",
+        "-B",
+        "flink/bin/flink_identity_parser.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "temporary_copy_cleaned": true,
+      "flink_identity_parser_selftest": true,
+      "case_count": 7
+    },
+    {
+      "name": "flink-seal",
+      "command": [
+        "python3",
+        "-B",
+        "flink/bin/seal_evidence_core.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "temporary_copy_cleaned": true,
+      "seal_evidence_core_selftest": true,
+      "case_count": 9
+    }
+  ],
+  "overall_pass": true,
+  "not_run": [
+    "P9 deployment",
+    "Kafka/Flink live acceptance",
+    "Recovery faults",
+    "heavy builds"
+  ]
+}

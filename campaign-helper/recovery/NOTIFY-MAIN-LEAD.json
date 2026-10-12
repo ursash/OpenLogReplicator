@@ -1,0 +1,10 @@
+{
+  "module": "campaign-helper/recovery",
+  "worktree_path": "/home/shihao/.paseo/worktrees/3u7e3tdp/live-srl-flink-20261012/campaign-helper/recovery",
+  "frozen": "FROZEN-SHA256.txt",
+  "handoff": "HANDOFF-MAIN.md",
+  "interface": "INTERFACE.md",
+  "entry": "bin/recovery_phase.sh R1|R2|R3",
+  "local_verify": "bin/run_local_verify.sh",
+  "replaces_stub": "olr-rac/lab/live_srl_e2e/recovery_trials.sh (sleep/kill-only/R3-stop-only)"
+}

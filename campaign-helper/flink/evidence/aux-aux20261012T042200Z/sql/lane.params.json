@@ -1,0 +1,12 @@
+{
+  "lane_prefix": "ocr370.live.srl.aux.aux20261012T042200Z",
+  "bootstrap_servers": "10.129.80.147:9092",
+  "consumer_group_ev": "live-srl-aux-aux20261012T042200Z-flink-ev",
+  "consumer_group_pp": "live-srl-aux-aux20261012T042200Z-flink-pp",
+  "checkpoint_dir": "file:///tmp/flink-aux-smoke-aux20261012T042200Z/checkpoints/lane",
+  "source_topic_ev": "ocr370.live.srl.aux.aux20261012T042200Z.OLR_RAC_TEST.EV",
+  "source_topic_pp": "ocr370.live.srl.aux.aux20261012T042200Z.OLR_RAC_TEST.PP",
+  "sink_topic_ev": "ocr370.live.srl.aux.aux20261012T042200Z.flink.sink.EV",
+  "sink_topic_pp": "ocr370.live.srl.aux.aux20261012T042200Z.flink.sink.PP",
+  "source_isolation_level": "read_committed"
+}

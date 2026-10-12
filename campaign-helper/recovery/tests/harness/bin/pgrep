@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+if [ -z "${DG_R3_TEST_STATE:-}" ]; then
+  exec command pgrep "$@"
+fi
+pat=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+  -f) shift; pat=$1 ;;
+  *) pat=$1 ;;
+  esac
+  shift
+done
+if [ -f "$DG_R3_TEST_STATE/pgrep_fail" ]; then
+  echo "pgrep: simulated failure" >&2
+  exit 2
+fi
+case "$pat" in
+*inventory_follow*)
+  if [ -f "$DG_R3_TEST_STATE/follower_pids" ]; then
+    tr ' \n' '\n' < "$DG_R3_TEST_STATE/follower_pids" | sed '/^$/d'
+    exit 0
+  fi
+  exit 1
+  ;;
+*OpenLogReplicator*)
+  if [ -f "$DG_R3_TEST_STATE/olr_dead" ]; then
+    exit 1
+  fi
+  if [ -f "$DG_R3_TEST_STATE/olr.pid" ]; then
+    cat "$DG_R3_TEST_STATE/olr.pid"
+    exit 0
+  fi
+  exit 1
+  ;;
+esac
+command /usr/bin/pgrep -f "$pat"

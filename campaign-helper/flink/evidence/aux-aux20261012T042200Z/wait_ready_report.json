@@ -1,0 +1,61 @@
+{
+  "result": "READY",
+  "jobs": [
+    {
+      "job_id": "3e59e905facd05b58ce157c18bf33e03",
+      "table": "EV",
+      "state": "RUNNING",
+      "checkpoints_completed": 1,
+      "latest_checkpoint": {
+        "className": "completed",
+        "id": 1,
+        "status": "COMPLETED",
+        "is_savepoint": false,
+        "savepointFormat": null,
+        "trigger_timestamp": 1791779683881,
+        "latest_ack_timestamp": 1791779683897,
+        "checkpointed_size": 5535,
+        "state_size": 5535,
+        "end_to_end_duration": 16,
+        "alignment_buffered": 0,
+        "processed_data": 0,
+        "persisted_data": 0,
+        "num_subtasks": 2,
+        "num_acknowledged_subtasks": 2,
+        "checkpoint_type": "CHECKPOINT",
+        "tasks": {},
+        "external_path": "file:/tmp/flink-aux-smoke-aux20261012T042200Z/checkpoints/lane/3e59e905facd05b58ce157c18bf33e03/chk-1",
+        "discarded": false
+      },
+      "ready": true
+    },
+    {
+      "job_id": "b4bdfaa21321169e8d68969759af9333",
+      "table": "PP",
+      "state": "RUNNING",
+      "checkpoints_completed": 19,
+      "latest_checkpoint": {
+        "className": "completed",
+        "id": 19,
+        "status": "COMPLETED",
+        "is_savepoint": false,
+        "savepointFormat": null,
+        "trigger_timestamp": 1791779665627,
+        "latest_ack_timestamp": 1791779665641,
+        "checkpointed_size": 4823,
+        "state_size": 4823,
+        "end_to_end_duration": 14,
+        "alignment_buffered": 0,
+        "processed_data": 0,
+        "persisted_data": 0,
+        "num_subtasks": 2,
+        "num_acknowledged_subtasks": 2,
+        "checkpoint_type": "CHECKPOINT",
+        "tasks": {},
+        "external_path": "file:/tmp/flink-aux-smoke-aux20261012T042200Z/checkpoints/lane/b4bdfaa21321169e8d68969759af9333/chk-19",
+        "discarded": false
+      },
+      "ready": true
+    }
+  ]
+}

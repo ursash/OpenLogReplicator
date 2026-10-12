@@ -1,0 +1,37 @@
+{
+  "to_lead": "8e6eafd0-cb7b-41ff-b193-8fb2f2e4e8cf",
+  "to_main": "aa4ee83f-df28-4f56-a0be-24807e1e80f0",
+  "status": "MAIN_CLASSPATH_IDENTITY_FIX_FROZEN_DELIVERABLE",
+  "module": "campaign-helper/flink",
+  "verification": {
+    "runner": "bin/flink_identity_parser.py --selftest + verify-fixture (MAIN ps fixture)",
+    "current_attempt": "evidence/fix-hold-selftest/CURRENT-ATTEMPT-20261012T060008Z.json",
+    "frozen_sha256": "FROZEN-SHA256.txt",
+    "readonly_ps_evidence": "/home/shihao/Projects/oracle-cdc-benchmark/olr-rac/evidence/live-srl-e2e-20261012T031500Z/attempts/20261012T054241Z-main-flink-nonce/main-flink-java-ps.txt"
+  },
+  "fix": "first_jvm_main_class: treat -classpath like -cp; skip -XX: flags; MAIN JM802602/TM803121 regression fixture",
+  "closed_not_retested": [
+    "submit",
+    "MAIN_md",
+    "seal",
+    "ready",
+    "P9",
+    "durable_frozen_snapshots"
+  ],
+  "integration": "MAIN-INTEGRATION-COMMANDS.md (rsync without --delete; then cd module root && sha256sum -c FROZEN-SHA256.txt)",
+  "delivery_checklist": {
+    "order": [
+      "finalize NOTIFY-LEAD-MAIN.json",
+      "bin/freeze_manifest.sh",
+      "sha256sum -c FROZEN-SHA256.txt at module root"
+    ],
+    "note": "Lead 41-entry FROZEN recheck: prior sole mismatch was NOTIFY edited after freeze; resolved by this ordering."
+  },
+  "main_integration_anchor": {
+    "attempt_id": "20261012T060008Z",
+    "scope": "main_argv_classpath_identity_minimal",
+    "verify_command": "cd <module-root> && sha256sum -c FROZEN-SHA256.txt"
+  },
+  "migration": "deferred",
+  "end_excluded": true
+}

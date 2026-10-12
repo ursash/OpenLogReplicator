@@ -1,0 +1,12 @@
+# olr-pinned-exe.bin
+
+Place a copy of the pinned OpenLogReplicator binary here (sha256 must equal `pin_bin` in `bin/dg_r3_recovery_olr.sh`).
+
+Generate once on DG1:
+
+```bash
+cp /opt/olr-rac/src/rac9-wsguard-r1/cmake-build-release/OpenLogReplicator tests/fixtures/olr-pinned-exe.bin
+sha256sum -c <<< '4d93d70a98cd915c6a665929498e867bd2bec1b01be185620d4d15237cfbb9af  tests/fixtures/olr-pinned-exe.bin'
+```
+
+Or set `OLR_PINNED_EXE_SOURCE` when running `bin/run_local_verify.sh`.

@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Primitive sudo mock: strips -u oracle; routes python procio to fixture tree.
+if [ "${1:-}" = "-u" ] && [ "${2:-}" = "oracle" ]; then
+  shift 2
+fi
+while [ "${1:-}" = "env" ]; do
+  shift
+  while [ $# -gt 0 ] && [[ "${1:-}" == *=* ]]; do
+    export "$1"
+    shift
+  done
+done
+case "${1:-}" in
+python3)
+  shift
+  if [ -n "${DG_R3_TEST_STATE:-}" ]; then
+    export DG_R3_PROCIO_FIXTURE_ROOT="${DG_R3_PROCIO_FIXTURE_ROOT:-$DG_R3_TEST_STATE/proc}"
+  fi
+  exec python3 "$@"
+  ;;
+pgrep)
+  shift
+  exec "$(dirname "$0")/pgrep" "$@"
+  ;;
+ss)
+  shift
+  exec "$(dirname "$0")/ss" "$@"
+  ;;
+kill)
+  shift
+  exec "$(dirname "$0")/kill" "$@"
+  ;;
+bash)
+  if [ "${2:-}" = "-c" ] && [ -n "${DG_R3_TEST_STATE:-}" ]; then
+    case "$3" in
+    *nohup*)
+      if [ -f "$DG_R3_TEST_STATE/on_continue.sh" ]; then
+        command /usr/bin/bash "$DG_R3_TEST_STATE/on_continue.sh"
+        exit $?
+      fi
+      ;;
+    esac
+    command /usr/bin/bash -c "$3"
+    exit $?
+  fi
+  command /usr/bin/bash "$@"
+  ;;
+id)
+  if [ "${2:-}" = "-u" ] && [ "${3:-}" = "oracle" ]; then
+    echo "${DG_R3_ORACLE_UID:-54321}"
+    exit 0
+  fi
+  command id "$@"
+  ;;
+test|tee|grep|sha256sum|tail|cat)
+  command "$@"
+  ;;
+*)
+  command /usr/bin/sudo "$@"
+  ;;
+esac

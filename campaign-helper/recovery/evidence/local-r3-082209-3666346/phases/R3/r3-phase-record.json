@@ -1,0 +1,17 @@
+{
+  "phase": "R3",
+  "verdict": "FAIL",
+  "rc": 1,
+  "utc": "2026-10-12T08:22:09Z",
+  "attempt": "/home/shihao/.paseo/worktrees/3u7e3tdp/live-srl-flink-20261012/campaign-helper/recovery/evidence/local-r3-082209-3666346",
+  "recovery_exec": "mock",
+  "conn": "ocr370-rac9-live-srl-MOCK-recovery",
+  "offset_topic": "ocr370.live.srl.MOCK.recovery.connect-offsets",
+  "commands": [
+    {
+      "utc": "2026-10-12T08:22:09.436Z",
+      "cmd": "dg_r3_recovery_olr.sh preflight",
+      "rc": 1
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "aux_run_id": "aux20261012T042200Z",
+  "rest_port_observed": 28140,
+  "legacy_rpc_blob_ports": {
+    "note": "Cluster started before portmap fix; JM/TM RPC still default 6123 / blob 34513 on host",
+    "planned_after_fix": {"jm_rpc": 28141, "tm_rpc": 28142, "tm_data": 28143, "blob": 28144}
+  },
+  "duplicate_pipeline_names_on_rest": {
+    "EV": ["03df92956e4f90acb852c6ad46270936", "3e59e905facd05b58ce157c18bf33e03"],
+    "PP": ["b4bdfaa21321169e8d68969759af9333", "c9025aecb48155479458d30d087e429f"],
+    "p9_readonly_snapshot": "evidence/fix-hold-selftest/P9-READONLY-SNAPSHOT.json"
+  },
+  "job_ids_json_generation": {
+    "ev_selected": "3e59e905facd05b58ce157c18bf33e03",
+    "pp_selected": "b4bdfaa21321169e8d68969759af9333",
+    "method_at_time": "REST name match (deprecated)",
+    "fix": "submit_receipt_and_diff binding in submit_lane_jobs.sh"
+  },
+  "raw_sink_evidence_scope": "sink_*.raw.tsv and SMOKE-OUTCOME in this directory reflect the smoke run at submit time; they do not alone prove a later re-submitted job id without fresh submit logs + sealed job_ids.json."
+}

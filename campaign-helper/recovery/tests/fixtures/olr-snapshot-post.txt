@@ -1,0 +1,2 @@
+continue pid=1002 config_unchanged=1
+olr: rac-follow live: CONTINUE

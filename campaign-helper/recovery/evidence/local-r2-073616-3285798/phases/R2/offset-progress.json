@@ -1,0 +1,9 @@
+{
+  "kind": "offset_progress_only",
+  "phase": "R2",
+  "utc": "2026-10-12T07:36:33Z",
+  "fingerprint_changed": true,
+  "pre_fingerprint": "e7fe21dcfd9a44309d86c618dd1a470eefb662bd174d287124070e537a7b1e05",
+  "post_fingerprint": "cab64d08bd672467394d984e4b44b1ca0423427913be521bb6178e9c9650c3a8",
+  "note": "Does not imply phase PASS or permission to inject next fault"
+}

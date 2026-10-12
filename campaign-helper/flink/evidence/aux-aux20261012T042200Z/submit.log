@@ -1,0 +1,4 @@
+SQL_CLIENT=/tmp/flink-aux-smoke-aux20261012T042200Z/lib/flink-1.20.5/bin/sql-client.sh
+submit ev_job.sql
+submit pp_job.sql
+{"jobs":[{"id":"b4bdfaa21321169e8d68969759af9333","status":"RUNNING"},{"id":"03df92956e4f90acb852c6ad46270936","status":"RUNNING"}]}

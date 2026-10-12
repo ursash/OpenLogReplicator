@@ -1,0 +1,34 @@
+{
+  "contract_version": "20261012T031500Z-expected-ops-v3",
+  "record_type": "final_key_state",
+  "run_id": "20261012T031500Z",
+  "entries": [
+    {
+      "table": "OLR_RAC_TEST.EV",
+      "key": { "ID": 1201984 },
+      "present": true,
+      "after": {
+        "ID": 1201984,
+        "INST": 1,
+        "TAG": "LSRL_20261012T031500Z",
+        "VAL": 3,
+        "PAD": "run_20261012T031500Z_u3"
+      }
+    },
+    {
+      "table": "OLR_RAC_TEST.EV",
+      "key": { "ID": 1201994 },
+      "present": true,
+      "after": {
+        "ID": 1201994,
+        "INST": 2,
+        "TAG": "LSRL_20261012T031500Z",
+        "VAL": 3,
+        "PAD": "run_20261012T031500Z_u3"
+      }
+    }
+  ],
+  "notes": {
+    "purpose": "intentionally incomplete final (SHORT/LONG omitted) for INPUT_INCOMPLETE qualification test only"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "attempt_id": "20261012T050812Z",
+  "scope": "open37_remaining_3",
+  "cases": [
+    {
+      "case": "identity_parser",
+      "expected": "pass",
+      "got": "pass"
+    },
+    {
+      "case": "wait_ready",
+      "expected": "pass",
+      "got": "fail"
+    }
+  ]
+}

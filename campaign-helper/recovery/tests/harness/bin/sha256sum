@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+if [ -n "${DG_R3_TEST_STATE:-}" ] && [ "${1:-}" = "/opt/olr-rac/src/rac9-wsguard-r1/cmake-build-release/OpenLogReplicator" ]; then
+  if [ -f "$DG_R3_TEST_STATE/bin_sha" ]; then
+    awk '{print $1"  '"$1"'"}' "$DG_R3_TEST_STATE/bin_sha"
+    exit 0
+  fi
+  echo "4d93d70a98cd915c6a665929498e867bd2bec1b01be185620d4d15237cfbb9af  $1"
+  exit 0
+fi
+command /usr/bin/sha256sum "$@"

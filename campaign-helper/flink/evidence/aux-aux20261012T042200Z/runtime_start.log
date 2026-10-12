@@ -1,0 +1,2 @@
+SQL_CLIENT=/tmp/flink-aux-smoke-aux20261012T042200Z/lib/flink-1.20.5/bin/sql-client.sh
+RUNTIME_LISTENING rest_port=28140 root=/tmp/flink-aux-smoke-aux20261012T042200Z flink_home=/tmp/flink-aux-smoke-aux20261012T042200Z/lib/flink-1.20.5

@@ -1,0 +1,3 @@
+STATUS t=2026-10-12T06:00:00.000Z pid=12345
+conns: 1
+olr: rac-follow live: release limit

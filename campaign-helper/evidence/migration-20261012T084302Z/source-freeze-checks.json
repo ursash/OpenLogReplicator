@@ -1,0 +1,28 @@
+[
+  {
+    "module": "validators",
+    "rc": 1,
+    "ok_count": 72,
+    "failed": [
+      "./__pycache__/mandatory_field_regressions.cpython-312.pyc: FAILED"
+    ]
+  },
+  {
+    "module": "smoke-business",
+    "rc": 0,
+    "ok_count": 5,
+    "failed": []
+  },
+  {
+    "module": "flink",
+    "rc": 0,
+    "ok_count": 41,
+    "failed": []
+  },
+  {
+    "module": "recovery",
+    "rc": 0,
+    "ok_count": 40,
+    "failed": []
+  }
+]

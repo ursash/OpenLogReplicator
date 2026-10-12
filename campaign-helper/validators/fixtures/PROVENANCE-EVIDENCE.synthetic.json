@@ -1,0 +1,1207 @@
+{
+  "contract_version": "20261012T031500Z-provenance-v1",
+  "run_id": "20261012T031500Z",
+  "evidence_class": "synthetic_component",
+  "event_bindings": [
+    {
+      "op_id": "E10101",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 0
+      },
+      "oracle": {
+        "xidusn": 36865,
+        "xidslot": 1,
+        "xidsqn": 4096,
+        "raw_xid_bytes_hex": "9001000100001000",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701000,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701000,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:1",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9001.0001.00001000",
+        "scn": 2701000
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 100,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.000Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:1",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10102",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 1
+      },
+      "oracle": {
+        "xidusn": 36866,
+        "xidslot": 1,
+        "xidsqn": 4097,
+        "raw_xid_bytes_hex": "9002000100001001",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701001,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701001,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:2",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9002.0001.00001001",
+        "scn": 2701001
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 101,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.001Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:2",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10103",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 2
+      },
+      "oracle": {
+        "xidusn": 36867,
+        "xidslot": 1,
+        "xidsqn": 4098,
+        "raw_xid_bytes_hex": "9003000100001002",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701002,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701002,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:3",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9003.0001.00001002",
+        "scn": 2701002
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 102,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.002Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:3",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10104",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 3
+      },
+      "oracle": {
+        "xidusn": 36868,
+        "xidslot": 1,
+        "xidsqn": 4099,
+        "raw_xid_bytes_hex": "9004000100001003",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701003,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701003,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:4",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9004.0001.00001003",
+        "scn": 2701003
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 103,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.003Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:4",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10105",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 4
+      },
+      "oracle": {
+        "xidusn": 36869,
+        "xidslot": 1,
+        "xidsqn": 4100,
+        "raw_xid_bytes_hex": "9005000100001004",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701004,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701004,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:5",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9005.0001.00001004",
+        "scn": 2701004
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 104,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.004Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:5",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10106",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 5
+      },
+      "oracle": {
+        "xidusn": 36870,
+        "xidslot": 1,
+        "xidsqn": 4101,
+        "raw_xid_bytes_hex": "9006000100001005",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701005,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701005,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:6",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9006.0001.00001005",
+        "scn": 2701005
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 105,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.005Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:6",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10201",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 6
+      },
+      "oracle": {
+        "xidusn": 36871,
+        "xidslot": 1,
+        "xidsqn": 4102,
+        "raw_xid_bytes_hex": "9007000100001006",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701006,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701006,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:7",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9007.0001.00001006",
+        "scn": 2701006
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 106,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.006Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:7",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10202",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 7
+      },
+      "oracle": {
+        "xidusn": 36872,
+        "xidslot": 1,
+        "xidsqn": 4103,
+        "raw_xid_bytes_hex": "9008000100001007",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701007,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701007,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:8",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9008.0001.00001007",
+        "scn": 2701007
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 107,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.007Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:8",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10203",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 8
+      },
+      "oracle": {
+        "xidusn": 36873,
+        "xidslot": 1,
+        "xidsqn": 4104,
+        "raw_xid_bytes_hex": "9009000100001008",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701008,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701008,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:9",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9009.0001.00001008",
+        "scn": 2701008
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 108,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.008Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:9",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10204",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 9
+      },
+      "oracle": {
+        "xidusn": 36874,
+        "xidslot": 1,
+        "xidsqn": 4105,
+        "raw_xid_bytes_hex": "900a000100001009",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701009,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701009,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:10",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x900a.0001.00001009",
+        "scn": 2701009
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 109,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.009Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:10",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10205",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 10
+      },
+      "oracle": {
+        "xidusn": 36875,
+        "xidslot": 1,
+        "xidsqn": 4106,
+        "raw_xid_bytes_hex": "900b00010000100a",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701010,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701010,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:11",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x900b.0001.0000100a",
+        "scn": 2701010
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 110,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.010Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:11",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10206",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 11
+      },
+      "oracle": {
+        "xidusn": 36876,
+        "xidslot": 1,
+        "xidsqn": 4107,
+        "raw_xid_bytes_hex": "900c00010000100b",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701011,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701011,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:12",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x900c.0001.0000100b",
+        "scn": 2701011
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 111,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.011Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:12",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10301",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 12
+      },
+      "oracle": {
+        "xidusn": 36877,
+        "xidslot": 1,
+        "xidsqn": 4108,
+        "raw_xid_bytes_hex": "900d00010000100c",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701012,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701012,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:13",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x900d.0001.0000100c",
+        "scn": 2701012
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 112,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.012Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:13",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10302",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 13
+      },
+      "oracle": {
+        "xidusn": 36878,
+        "xidslot": 1,
+        "xidsqn": 4109,
+        "raw_xid_bytes_hex": "900e00010000100d",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701013,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701013,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:14",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x900e.0001.0000100d",
+        "scn": 2701013
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 113,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.013Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:14",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10303",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 14
+      },
+      "oracle": {
+        "xidusn": 36879,
+        "xidslot": 1,
+        "xidsqn": 4110,
+        "raw_xid_bytes_hex": "900f00010000100e",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701014,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701014,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:15",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x900f.0001.0000100e",
+        "scn": 2701014
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 114,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.014Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:15",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10304",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 15
+      },
+      "oracle": {
+        "xidusn": 36880,
+        "xidslot": 1,
+        "xidsqn": 4111,
+        "raw_xid_bytes_hex": "901000010000100f",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701015,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701015,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:16",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9010.0001.0000100f",
+        "scn": 2701015
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 115,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.015Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:16",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10305",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 16
+      },
+      "oracle": {
+        "xidusn": 36881,
+        "xidslot": 1,
+        "xidsqn": 4112,
+        "raw_xid_bytes_hex": "9011000100001010",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701016,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701016,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:17",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9011.0001.00001010",
+        "scn": 2701016
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 116,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.016Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:17",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10306",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 17
+      },
+      "oracle": {
+        "xidusn": 36882,
+        "xidslot": 1,
+        "xidsqn": 4113,
+        "raw_xid_bytes_hex": "9012000100001011",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701017,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701017,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:18",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9012.0001.00001011",
+        "scn": 2701017
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 117,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.017Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:18",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10308",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 18
+      },
+      "oracle": {
+        "xidusn": 36883,
+        "xidslot": 1,
+        "xidsqn": 4114,
+        "raw_xid_bytes_hex": "9013000100001012",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701018,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701018,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:19",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9013.0001.00001012",
+        "scn": 2701018
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 118,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.018Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:19",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10309",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 19
+      },
+      "oracle": {
+        "xidusn": 36884,
+        "xidslot": 1,
+        "xidsqn": 4115,
+        "raw_xid_bytes_hex": "9014000100001013",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701019,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701019,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:20",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9014.0001.00001013",
+        "scn": 2701019
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 119,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.019Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:20",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E10310",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.EV",
+        "partition": 0,
+        "offset": 20
+      },
+      "oracle": {
+        "xidusn": 36885,
+        "xidslot": 1,
+        "xidsqn": 4116,
+        "raw_xid_bytes_hex": "9015000100001014",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701020,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701020,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:21",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9015.0001.00001014",
+        "scn": 2701020
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 120,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.020Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:21",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E1050001",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.PP",
+        "partition": 0,
+        "offset": 21
+      },
+      "oracle": {
+        "xidusn": 36886,
+        "xidslot": 1,
+        "xidsqn": 4117,
+        "raw_xid_bytes_hex": "9016000100001015",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701021,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701021,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:22",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9016.0001.00001015",
+        "scn": 2701021
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 121,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.021Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:22",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E1050002",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.PP",
+        "partition": 0,
+        "offset": 22
+      },
+      "oracle": {
+        "xidusn": 36887,
+        "xidslot": 1,
+        "xidsqn": 4118,
+        "raw_xid_bytes_hex": "9017000100001016",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701022,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701022,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:23",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9017.0001.00001016",
+        "scn": 2701022
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 122,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.022Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:23",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E1050003",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.PP",
+        "partition": 0,
+        "offset": 23
+      },
+      "oracle": {
+        "xidusn": 36888,
+        "xidslot": 1,
+        "xidsqn": 4119,
+        "raw_xid_bytes_hex": "9018000100001017",
+        "instance_number": 2,
+        "thread_number": 2,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701023,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701023,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:24",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9018.0001.00001017",
+        "scn": 2701023
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 2,
+        "sequence": 123,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.023Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:24",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    },
+    {
+      "op_id": "E1050004",
+      "kafka_coord": {
+        "topic": "ocr370.live.srl.20261012T031500Z.baseline.OLR_RAC_TEST.PP",
+        "partition": 0,
+        "offset": 24
+      },
+      "oracle": {
+        "xidusn": 36889,
+        "xidslot": 1,
+        "xidsqn": 4120,
+        "raw_xid_bytes_hex": "9019000100001018",
+        "instance_number": 1,
+        "thread_number": 1,
+        "commit_outcome": "success",
+        "checkpoint_scn": {
+          "value": 2701024,
+          "source": "kafka_envelope"
+        },
+        "commit_scn": {
+          "value": 2701024,
+          "source": "oracle_redo_commit"
+        },
+        "commit_evidence_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/oracle-commit.smoke.jsonl",
+          "locator": "line:25",
+          "sha256": "9b94de0ee837bc26c09d75abb7a0f9ff9531e613a577f083b1993bd6b2323fb7"
+        }
+      },
+      "kafka_source": {
+        "txId": "0x9019.0001.00001018",
+        "scn": 2701024
+      },
+      "srl_witness": {
+        "incarnation": 1,
+        "thread": 1,
+        "sequence": 124,
+        "member": "member1",
+        "sampled_utc": "2026-10-12T03:20:10.024Z",
+        "archive_delivered_utc": "2026-10-12T03:20:24.000Z",
+        "growth_state": "archiving",
+        "artifact_ref": {
+          "path": "/home/shihao/Projects/github/OpenLogReplicator/campaign-helper/validators/fixtures/srl-witness.smoke.jsonl",
+          "locator": "line:25",
+          "sha256": "6016b369ea1209afa32e492eeafc6785d6ed003e7800b55806232002351c713c"
+        }
+      }
+    }
+  ]
+}

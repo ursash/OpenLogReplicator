@@ -1,0 +1,7 @@
+{
+  "phase": "R1",
+  "qualified": true,
+  "offset_watermark": "MAIN binds scn/kafka offset after business compare",
+  "business_binding": "same-nonce smoke recovery lane",
+  "note": "fixture for local mock only"
+}

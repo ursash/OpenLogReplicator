@@ -1,0 +1,17 @@
+{
+  "copied_files": 838,
+  "verified_modes": 838,
+  "expected_changed_files": [
+    "flink/FROZEN-SHA256.txt",
+    "flink/MAIN-INTEGRATION-COMMANDS.md",
+    "recovery/FROZEN-SHA256.txt",
+    "smoke-business/SHA256SUMS",
+    "validators/SHA256SUMS",
+    "validators/fixtures/ORACLE-QUALIFICATION-EVIDENCE.smoke.json",
+    "validators/fixtures/PROVENANCE-EVIDENCE.synthetic.json"
+  ],
+  "source_unchanged": true,
+  "archive_verified": true,
+  "tracked_product_files_unchanged": true,
+  "errors": []
+}

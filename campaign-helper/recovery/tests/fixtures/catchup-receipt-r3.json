@@ -1,0 +1,6 @@
+{
+  "phase": "R3",
+  "qualified": true,
+  "offset_watermark": "mock-r3",
+  "business_binding": "olr-continue"
+}

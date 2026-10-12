@@ -1,0 +1,7 @@
+{"run_id":"20261012T031500Z","phase":"P099","receipt_type":"phase_boundary","utc":"2026-10-12T03:19:30.000Z","host":"RAC1","note":"prep_rows_outside_measured_dml;lanes_must_catch_up_before_consumer_window","catch_up_proven":true}
+{"run_id":"20261012T031500Z","phase":"P100","receipt_type":"phase_boundary","utc":"2026-10-12T03:20:00.000Z","host":"RAC1","note":"measurement_window_written","path":"state/MEASUREMENT-WINDOW.json"}
+{"run_id":"20261012T031500Z","phase":"W101","receipt_type":"sql_commit","utc":"2026-10-12T03:20:10.000Z","host":"RAC1","file":"live_srl_workload_burst.sql","sql_exit":0}
+{"run_id":"20261012T031500Z","phase":"W102","receipt_type":"sql_commit","utc":"2026-10-12T03:20:11.000Z","host":"RAC2","file":"live_srl_workload_burst.sql","sql_exit":0}
+{"run_id":"20261012T031500Z","phase":"P103","receipt_type":"key_anchor","utc":"2026-10-12T03:20:20.000Z","host":"RAC1","payload":{"partial_rollback_key":1401991,"full_rollback_keys":[1401994]}}
+{"run_id":"20261012T031500Z","phase":"W104","receipt_type":"sql_commit","utc":"2026-10-12T03:20:25.000Z","host":"RAC1","file":"archive_current.sql","sql_exit":0}
+{"run_id":"20261012T031500Z","phase":"P105","receipt_type":"phase_boundary","utc":"2026-10-12T03:20:30.000Z","host":"RAC1","note":"pingpong_smoke_pairs_complete"}

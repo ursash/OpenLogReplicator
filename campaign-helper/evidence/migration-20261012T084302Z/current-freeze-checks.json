@@ -1,0 +1,34 @@
+[
+  {
+    "module": "validators",
+    "manifest": "SHA256SUMS",
+    "version": "20261012T084302Z",
+    "entries": 47,
+    "excluded_cache_entries": 26,
+    "rc": 0
+  },
+  {
+    "module": "smoke-business",
+    "manifest": "SHA256SUMS",
+    "version": "20261012T084302Z",
+    "entries": 5,
+    "excluded_cache_entries": 0,
+    "rc": 0
+  },
+  {
+    "module": "flink",
+    "manifest": "FROZEN-SHA256.txt",
+    "version": "20261012T084302Z",
+    "entries": 41,
+    "excluded_cache_entries": 0,
+    "rc": 0
+  },
+  {
+    "module": "recovery",
+    "manifest": "FROZEN-SHA256.txt",
+    "version": "20261012T084302Z",
+    "entries": 40,
+    "excluded_cache_entries": 0,
+    "rc": 0
+  }
+]

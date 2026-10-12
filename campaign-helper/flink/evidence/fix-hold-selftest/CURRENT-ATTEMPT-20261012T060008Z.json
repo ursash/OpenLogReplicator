@@ -1,0 +1,47 @@
+{
+  "attempt_id": "20261012T060008Z",
+  "scope": "main_argv_classpath_identity_minimal",
+  "root_cause": "first_jvm_main_class did not skip Flink -classpath (only -cp/--classpath); MAIN JM802602/TM803121 argv hit could not determine JVM main class",
+  "external_evidence_readonly": "/home/shihao/Projects/oracle-cdc-benchmark/olr-rac/evidence/live-srl-e2e-20261012T031500Z/attempts/20261012T054241Z-main-flink-nonce/main-flink-java-ps.txt",
+  "fix_summary": [
+    "JVM_SKIP_NEXT adds -classpath",
+    "skip -XX: JVM flags",
+    "classpath smuggling check includes -classpath",
+    "tests/fixtures/main20261012T054241Z_java_argv.json from ps (jm+tm)"
+  ],
+  "cases": [
+    {
+      "case": "identity_parser_selftest",
+      "expected": "pass",
+      "got": "pass",
+      "highlights": [
+        "main_ps_jm_802602_classpath",
+        "main_ps_tm_803121_classpath",
+        "other_main_before_flink_class"
+      ]
+    },
+    {
+      "case": "main_verify_fixture_jm_802602_stdout_pid_only",
+      "expected": "pass",
+      "got": "pass",
+      "stdout": "802602",
+      "stderr": "PID_OK"
+    },
+    {
+      "case": "main_verify_fixture_tm_803121_stdout_pid_only",
+      "expected": "pass",
+      "got": "pass",
+      "stdout": "803121",
+      "stderr": "PID_OK"
+    }
+  ],
+  "overall": "PASS",
+  "frozen_sha256": "FROZEN-SHA256.txt",
+  "closed_not_retested": [
+    "submit",
+    "MAIN_md",
+    "seal_core",
+    "ready_two_job",
+    "open39_full_runner"
+  ]
+}

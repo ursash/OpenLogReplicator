@@ -1,0 +1,37 @@
+{
+  "phase": "R3",
+  "verdict": "PASS",
+  "rc": 0,
+  "utc": "2026-10-12T08:08:59Z",
+  "attempt": "/home/shihao/.paseo/worktrees/3u7e3tdp/live-srl-flink-20261012/campaign-helper/recovery/evidence/local-r3-080856-3634504",
+  "recovery_exec": "mock",
+  "conn": "ocr370-rac9-live-srl-MOCK-recovery",
+  "offset_topic": "ocr370.live.srl.MOCK.recovery.connect-offsets",
+  "commands": [
+    {
+      "utc": "2026-10-12T08:08:57.182Z",
+      "cmd": "dg_r3_recovery_olr.sh preflight",
+      "rc": 0
+    },
+    {
+      "utc": "2026-10-12T08:08:57.559Z",
+      "cmd": "dg_r3_recovery_olr.sh snapshot",
+      "rc": 0
+    },
+    {
+      "utc": "2026-10-12T08:08:58.250Z",
+      "cmd": "dg_r3_recovery_olr.sh stop",
+      "rc": 0
+    },
+    {
+      "utc": "2026-10-12T08:08:58.637Z",
+      "cmd": "dg_r3_recovery_olr.sh continue",
+      "rc": 0
+    },
+    {
+      "utc": "2026-10-12T08:08:58.991Z",
+      "cmd": "dg_r3_recovery_olr.sh verify",
+      "rc": 0
+    }
+  ]
+}

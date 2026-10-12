@@ -1,0 +1,6 @@
+{
+  "connector.class": "io.debezium.connector.oracle.OracleConnector",
+  "topic.prefix": "ocr370.live.srl.MOCK.recovery",
+  "database.connection.adapter": "olr",
+  "openlogreplicator.port": "39433"
+}

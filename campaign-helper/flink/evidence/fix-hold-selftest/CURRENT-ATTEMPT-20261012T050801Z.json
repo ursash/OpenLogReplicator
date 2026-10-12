@@ -1,0 +1,36 @@
+{
+  "attempt_id": "20261012T050801Z",
+  "scope": "open37_remaining_3",
+  "cases": [
+    {
+      "case": "identity_parser",
+      "expected": "pass",
+      "got": "pass"
+    },
+    {
+      "case": "wait_ready",
+      "expected": "pass",
+      "got": "fail"
+    },
+    {
+      "case": "seal_core",
+      "expected": "pass",
+      "got": "pass"
+    },
+    {
+      "case": "identity_empty_pid",
+      "expected": "fail",
+      "got": "fail"
+    }
+  ],
+  "overall": "FAIL",
+  "not_live": [
+    "Java Flink process identity on P9 (parser validated against P9-shaped argv fixture only)",
+    "REST listener owner vs JM pid on production host",
+    "seal_evidence.sh end-to-end with live REST checkpoint fetch"
+  ],
+  "closed_not_retested": [
+    "submit_bind",
+    "MAIN_INTEGRATION_md_cd"
+  ]
+}

@@ -1,0 +1,8 @@
+SNAPSHOT t=2026-10-12T08:08:57.217Z run=/home/shihao/.paseo/worktrees/3u7e3tdp/live-srl-flink-20261012/campaign-helper/recovery/evidence/local-r3-080856-3634504/phases/R3/mock-dg-state/run port=39233
+config_sha=a3cc7b727097db58248da2119eb04f8d7d1c3534d77e5a1ee463bde960533135
+state_fp=224dfbb744d56732a96b741ec51f170902063aa0693531887047e919866b6059
+olr_pid=9001
+olr_identity: pid=9001 uid=54321 starttime=200001 exe=/opt/olr-rac/src/rac9-wsguard-r1/cmake-build-release/OpenLogReplicator exe_sha256=4d93d70a98cd915c6a665929498e867bd2bec1b01be185620d4d15237cfbb9af cmdline=/opt/olr-rac/src/rac9-wsguard-r1/cmake-build-release/OpenLogReplicator -f /home/shihao/.paseo/worktrees/3u7e3tdp/live-srl-flink-20261012/campaign-helper/recovery/evidence/local-r3-080856-3634504/phases/R3/mock-dg-state/run/config.json
+listening=1
+baseline_follower MATCH pid=8101 starttime=100001 RUN_DIR=/home/shihao/.paseo/worktrees/3u7e3tdp/live-srl-flink-20261012/campaign-helper/recovery/evidence/local-r3-080856-3634504/phases/R3/mock-dg-state/baseline_run
+recovery_follower MATCH pid=8201 starttime=100001 RUN_DIR=/home/shihao/.paseo/worktrees/3u7e3tdp/live-srl-flink-20261012/campaign-helper/recovery/evidence/local-r3-080856-3634504/phases/R3/mock-dg-state/run

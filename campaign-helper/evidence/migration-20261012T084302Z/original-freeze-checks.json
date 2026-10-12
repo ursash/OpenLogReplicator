@@ -1,0 +1,61 @@
+[
+  {
+    "module": "validators",
+    "manifest": "SHA256SUMS",
+    "rc": 1,
+    "ok_count": 47,
+    "failures": [
+      "./fixtures/__pycache__/build_runtime_smoke_fixtures.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/astra_v71_current_attempt.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/mandatory_field_regressions.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/mandatory_schema.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/self_test.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_capture_manifest.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_contracts.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_dates.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_fields.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_flink.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_hashes.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_journal.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_kafka.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_match.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_measurement_window.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_oracle.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_oracle_qualify.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_order.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_provenance_artifacts.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_provenance.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_qualification_evidence.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_receipt.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_runtime_gates.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_source_envelope.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_validate.cpython-312.pyc: FAILED open or read",
+      "./__pycache__/srl_xid.cpython-312.pyc: FAILED open or read"
+    ],
+    "stderr": "sha256sum: ./fixtures/__pycache__/build_runtime_smoke_fixtures.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/astra_v71_current_attempt.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/mandatory_field_regressions.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/mandatory_schema.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/self_test.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_capture_manifest.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_contracts.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_dates.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_fields.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_flink.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_hashes.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_journal.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_kafka.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_match.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_measurement_window.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_oracle.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_oracle_qualify.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_order.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_provenance_artifacts.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_provenance.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_qualification_evidence.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_receipt.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_runtime_gates.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_source_envelope.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_validate.cpython-312.pyc: No such file or directory\nsha256sum: ./__pycache__/srl_xid.cpython-312.pyc: No such file or directory\nsha256sum: WARNING: 26 listed files could not be read\n"
+  },
+  {
+    "module": "smoke-business",
+    "manifest": "SHA256SUMS",
+    "rc": 0,
+    "ok_count": 5,
+    "failures": [],
+    "stderr": ""
+  },
+  {
+    "module": "flink",
+    "manifest": "FROZEN-SHA256.txt",
+    "rc": 0,
+    "ok_count": 41,
+    "failures": [],
+    "stderr": ""
+  },
+  {
+    "module": "recovery",
+    "manifest": "FROZEN-SHA256.txt",
+    "rc": 0,
+    "ok_count": 40,
+    "failures": [],
+    "stderr": ""
+  }
+]
