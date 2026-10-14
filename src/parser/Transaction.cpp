@@ -196,7 +196,7 @@ namespace OpenLogReplicator {
                                " empty buffer, offset: " + redoLogRecord1->fileOffset.toString() + ", xid: " + xid.toString() + ", pos: 1");
     }
 
-    void Transaction::flush(Metadata* metadata, Builder* builder) {
+    void Transaction::flush(Metadata* metadata, Builder* builder, Scn lwnScn) {
         metadata->ctx->swappedMemoryFlush(metadata->ctx->parserThread, xid);
         bool opFlush;
         const uint64_t maxMessageMb = builder->getMaxMessageMb();
@@ -222,7 +222,7 @@ namespace OpenLogReplicator {
             metadata->schema->scn = commitScn;
         }
         builder->processBegin(xid, thread, beginSequence, beginScn, beginTimestamp,
-             commitSequence,  commitScn, commitTimestamp, &attributes);
+             commitSequence, commitScn, commitTimestamp, lwnScn, &attributes);
 
         auto transactionType = Format::TRANSACTION_TYPE::T_NONE;
         std::deque<const RedoLogRecord*> redo1;
@@ -534,7 +534,7 @@ namespace OpenLogReplicator {
 
                     builder->processCommit();
                     builder->processBegin(xid, thread, beginSequence, beginScn, beginTimestamp,
-                         commitSequence, commitScn, commitTimestamp, &attributes);
+                         commitSequence, commitScn, commitTimestamp, lwnScn, &attributes);
                 }
 
                 if (opFlush) {

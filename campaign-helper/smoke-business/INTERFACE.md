@@ -61,7 +61,7 @@ python3 smoke_business.py \
 python3 smoke_business.py --self-test
 ```
 
-证据：`evidence/smoke-business-regressions-last.json`（14 case，同一 `validate_smoke_business` 入口）。
+证据（self-test 当时路径）：`evidence/smoke-business-regressions-last.json`（14 case，同一 `validate_smoke_business` 入口）。 **Git 迁出后：** [../../../../../oracle-cdc-benchmark/olr-rac/evidence/source-reorganization-20261014T034848Z/curation/legacy-helper-evidence/campaign-helper/smoke-business/evidence/smoke-business-regressions-last.json](../../../../../oracle-cdc-benchmark/olr-rac/evidence/source-reorganization-20261014T034848Z/curation/legacy-helper-evidence/campaign-helper/smoke-business/evidence/smoke-business-regressions-last.json)（frozen payload；模块 `SHA256SUMS` 仍为 harness 源码 historical，**非** 当前 Git 树 localevidence PASS）。
 
 ## 冻结清单
 

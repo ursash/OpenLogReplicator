@@ -18,7 +18,7 @@ python3 -B hold_regression.py          # exit 0
 python3 -B validate_lane.py --self-test # exit 0
 ```
 
-Evidence: `evidence/self-test-last.json`
+Evidence (path at test time): `evidence/self-test-last.json` — **relocated:** [../../../../../oracle-cdc-benchmark/olr-rac/evidence/source-reorganization-20261014T034848Z/curation/legacy-helper-evidence/campaign-helper/validators/evidence/self-test-last.json](../../../../../oracle-cdc-benchmark/olr-rac/evidence/source-reorganization-20261014T034848Z/curation/legacy-helper-evidence/campaign-helper/validators/evidence/self-test-last.json) (unchanged payload; `SHA256SUMS` / freeze-hold labels **historical** for deleted Git-tree evidence).
 
 ## Primary integration
 

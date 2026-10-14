@@ -115,6 +115,7 @@ namespace {
                 HAS_KAFKA HAS_OCI HAS_PROMETHEUS HAS_PROTOBUF HAS_ZEROMQ HAS_STATIC HAS_THREAD_INFO);
 
         const char* fileName = "scripts/OpenLogReplicator.json";
+        bool racInit = false;
         try {
             bool forceRoot = false;
             const std::regex regexTest(".*");
@@ -137,6 +138,11 @@ namespace {
                 if (arg == "-r" || arg == "--root") {
                     // Allow bad practice to run as root
                     forceRoot = true;
+                    continue;
+                }
+
+                if (arg == "--rac-init") {
+                    racInit = true;
                     continue;
                 }
 
@@ -166,7 +172,7 @@ namespace {
                 }
 
                 throw OpenLogReplicator::ConfigurationException(30002, "invalid arguments, run: " + std::string(argv[0]) + " [-v|--version] [-f|--file CONFIG] "
-                                                                "[-p|--process PROCESSNAME] [-r|--root]");
+                                                                "[-p|--process PROCESSNAME] [-r|--root] [--rac-init]");
             }
         } catch (OpenLogReplicator::ConfigurationException& ex) {
             mainCtx->error(ex.code, ex.msg);
@@ -177,6 +183,7 @@ namespace {
         }
 
         OpenLogReplicator::OpenLogReplicator openLogReplicator(fileName, mainCtx);
+        openLogReplicator.racInit = racInit;
         try {
             ret = openLogReplicator.run();
         } catch (OpenLogReplicator::ConfigurationException& ex) {

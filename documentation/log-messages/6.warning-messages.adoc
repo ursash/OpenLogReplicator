@@ -186,7 +186,7 @@ Remediation: Verify XML content and source XML dictionary metadata.
 DDL-related system data is malformed or unexpected.
 Remediation: Inspect raw DDL records and source metadata; report if reproducible.
 
-== code 60038, "can't continue from scn: <scn>, idx: <number>, <reason>"
+==== code 60038, "can't continue from scn: <scn>, idx: <number>, <reason>"
 
 A network client sent `CONTINUE` with a cursor (`c_scn`, `c_idx`; when `c_scn` is 0 or absent, the cursor last confirmed in this process) that the retained in-memory output cannot serve completely.
 Some output required after that cursor can no longer be resent. The program answers `FAILED_START` instead of `REPLICATE`; the client cursor, output queue, replay position and streaming flag are left unchanged.

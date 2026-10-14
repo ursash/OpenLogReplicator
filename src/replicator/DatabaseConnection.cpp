@@ -19,6 +19,11 @@ If not, see <http://www.gnu.org/licenses/>. */
 
 #include "DatabaseConnection.h"
 #include "DatabaseEnvironment.h"
+#include "../metadata/Metadata.h"
+#include "../common/exception/RuntimeException.h"
+#include <algorithm>
+#include <chrono>
+#include <regex>
 
 namespace OpenLogReplicator {
     DatabaseConnection::DatabaseConnection(DatabaseEnvironment* newEnv, std::string newUser, std::string newPassword, std::string newConnectString,
@@ -37,10 +42,23 @@ namespace OpenLogReplicator {
         OCIHandleAlloc(env->envhp, reinterpret_cast<dvoid**>(&svchp), OCI_HTYPE_SVCCTX, 0, nullptr);
         OCIHandleAlloc(env->envhp, reinterpret_cast<dvoid**>(&authp), OCI_HTYPE_SESSION, 0, nullptr);
 
-        env->checkErr(errhp, OCIServerAttach(srvhp, errhp, reinterpret_cast<const OraText*>(connectString.c_str()),
-                                             connectString.length(), OCI_DEFAULT));
+        std::string endpoint(connectString);
+        if (startupMetadata != nullptr) {
+            startupMetadata->checkNativeDeadline();
+            // Bound attachment as well as subsequent OCI round trips, without changing the customer's saved endpoint.
+            if (!std::regex_match(endpoint, std::regex("//[A-Za-z0-9_.-]+:[0-9]+/[A-Za-z0-9_.-]+")))
+                throw RuntimeException(10077, "rac-online currently requires the stock //host:port/service connection form");
+            const int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+            const int64_t remaining = startupMetadata->racDeadlineMs - now;
+            if (remaining <= 0)
+                throw RuntimeException(10077, "native RAC connection attachment deadline exceeded");
+            const std::string timeout = std::to_string(std::min<int64_t>(10000, remaining)) + "ms";
+            endpoint += "?connect_timeout=" + timeout + "&transport_connect_timeout=" + timeout + "&retry_count=0";
+        }
+        env->checkErr(errhp, OCIServerAttach(srvhp, errhp, reinterpret_cast<const OraText*>(endpoint.c_str()), endpoint.length(), OCI_DEFAULT));
         env->checkErr(errhp, OCIAttrSet(svchp, OCI_HTYPE_SVCCTX, srvhp, 0,
                                         OCI_ATTR_SERVER, errhp));
+        checkStartupDeadline();
         env->checkErr(errhp, OCIAttrSet(authp, OCI_HTYPE_SESSION,
                                         const_cast<dvoid*>(reinterpret_cast<const dvoid*>(user.c_str())), user.length(),
                                         OCI_ATTR_USERNAME, errhp));
@@ -57,6 +75,16 @@ namespace OpenLogReplicator {
                                         authp, 0, OCI_ATTR_SESSION, errhp));
 
         connected = true;
+    }
+
+    void DatabaseConnection::checkStartupDeadline() {
+        if (startupMetadata == nullptr)
+            return;
+        startupMetadata->checkNativeDeadline();
+        const int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+        const int64_t remaining = startupMetadata->racDeadlineMs - now;
+        ub4 timeout = static_cast<ub4>(std::max<int64_t>(1, std::min<int64_t>(10000, remaining)));
+        env->checkErr(errhp, OCIAttrSet(svchp, OCI_HTYPE_SVCCTX, &timeout, 0, OCI_ATTR_CALL_TIMEOUT, errhp));
     }
 
     void DatabaseConnection::disconnect() {

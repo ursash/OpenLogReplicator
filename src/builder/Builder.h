@@ -80,7 +80,8 @@ namespace OpenLogReplicator {
             ALLOCATED  = 1 << 0,
             CONFIRMED  = 1 << 1,
             CHECKPOINT = 1 << 2,
-            REDO       = 1 << 3
+            REDO       = 1 << 3,
+            CLIENT_ACK = 1 << 4
         };
 
         void* ptr;
@@ -1292,7 +1293,7 @@ namespace OpenLogReplicator {
         [[nodiscard]] uint64_t getMaxMessageMb() const;
         void setMaxMessageMb(uint64_t maxMessageMb);
         void processBegin(Xid xid, uint16_t newThread, Seq newBeginSequence, Scn newBeginScn, Time newBeginTimestamp, Seq newCommitSequence, Scn newCommitScn,
-                          Time newCommitTimestamp, const AttributeMap* newAttributes);
+                          Time newCommitTimestamp, Scn newLwnScn, const AttributeMap* newAttributes);
         void processInsertMultiple(Seq sequence, Scn scn, Time timestamp, LobCtx* lobCtx, const XmlCtx* xmlCtx, const RedoLogRecord* redoLogRecord1,
                                    const RedoLogRecord* redoLogRecord2, bool system, bool schema, bool dump);
         void processDeleteMultiple(Seq sequence, Scn scn, Time timestamp, LobCtx* lobCtx, const XmlCtx* xmlCtx, const RedoLogRecord* redoLogRecord1,

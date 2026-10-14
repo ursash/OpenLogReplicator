@@ -692,7 +692,7 @@ namespace OpenLogReplicator {
     }
 
     void Builder::processBegin(Xid xid, uint16_t newThread, Seq newBeginSequence, Scn newBeginScn, Time newBeginTimestamp, Seq newCommitSequence,
-                               Scn newCommitScn, Time newCommitTimestamp, const AttributeMap* newAttributes) {
+                               Scn newCommitScn, Time newCommitTimestamp, Scn newLwnScn, const AttributeMap* newAttributes) {
         lastXid = xid;
         thread = newThread;
         beginSequence = newBeginSequence;
@@ -701,8 +701,8 @@ namespace OpenLogReplicator {
         commitSequence = newCommitSequence;
         commitScn = newCommitScn;
         commitTimestamp = newCommitTimestamp;
-        if (lwnScn != beginScn) {
-            lwnScn = beginScn;
+        if (lwnScn != newLwnScn) {
+            lwnScn = newLwnScn;
             lwnIdx = 0;
         }
         newTran = true;

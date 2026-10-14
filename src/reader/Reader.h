@@ -80,7 +80,6 @@ namespace OpenLogReplicator {
         int group;
         Seq sequence;
         uint32_t dbidHeader{0};
-        uint16_t threadHeader{0};
         typeBlk numBlocksHeader{Ctx::ZERO_BLK};
         typeResetlogs resetlogs{0};
         typeActivation activation{0};
@@ -158,7 +157,6 @@ namespace OpenLogReplicator {
         void setGroup(int newGroup);
         [[nodiscard]] Seq getSequence() const;
         [[nodiscard]] uint32_t getDbid() const;
-        [[nodiscard]] uint16_t getThread() const;
         [[nodiscard]] typeResetlogs getResetlogs() const;
         [[nodiscard]] typeActivation getActivation() const;
         [[nodiscard]] uint64_t getSumRead() const;

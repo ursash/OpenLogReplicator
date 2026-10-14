@@ -1,5 +1,0 @@
-{
-  "name": "ocr370-rac9-live-srl-MOCK-recovery",
-  "connector": {"state": "STOPPED", "worker_id": "127.0.0.1:28133"},
-  "tasks": [{"id": 0, "state": "STOPPED", "worker_id": "127.0.0.1:28133"}]
-}

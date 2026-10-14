@@ -35,6 +35,7 @@ namespace OpenLogReplicator {
         // Writer checkpoint cursor semantics version, see Writer::readCheckpoint
         static constexpr uint64_t CURSOR_FORMAT = 2;
         static constexpr uint64_t CURSOR_FORMAT_RAC = 3;
+        static constexpr uint64_t CURSOR_FORMAT_RAC_ONLINE = 4;
 
         std::string database;
         Builder* builder;
@@ -74,7 +75,7 @@ namespace OpenLogReplicator {
         ~Writer() override;
 
         virtual void initialize();
-        void confirmMessage(BuilderMsg* msg);
+        void confirmMessage(BuilderMsg* msg, bool clientAck = false);
         void wakeUp() override;
         virtual void flush() {}
 

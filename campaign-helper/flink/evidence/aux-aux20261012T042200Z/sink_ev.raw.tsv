@@ -1,9 +1,0 @@
-{"ID":1201984}	{"ID":1201984,"INST":1,"TAG":"LSRL_AUX","VAL":10,"PAD":"rac1"}
-{"ID":1201984}	{"ID":1201984,"INST":1,"TAG":"LSRL_AUX","VAL":11,"PAD":"rac1-u1"}
-{"ID":1201984}	{"ID":1201984,"INST":1,"TAG":"LSRL_AUX","VAL":null,"PAD":"rac1-null-val"}
-{"ID":1201994}	{"ID":1201994,"INST":2,"TAG":"LSRL_AUX","VAL":20,"PAD":"rac2"}
-{"ID":1201994}	{"ID":1201994,"INST":2,"TAG":"LSRL_AUX","VAL":21,"PAD":"rac2-u1"}
-{"ID":1201985}	{"ID":1201985,"INST":1,"TAG":"LSRL_DEL","VAL":1,"PAD":"del"}
-{"ID":1201985}	null
-{"ID":1201995}	{"ID":1201995,"INST":2,"TAG":"LSRL_DEL","VAL":1,"PAD":"del"}
-{"ID":1201995}	null

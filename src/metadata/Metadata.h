@@ -122,6 +122,15 @@ namespace OpenLogReplicator {
         // rac-batch: sorted merged threads (empty in single-thread modes) and the schema cut stored with the acknowledged cursor
         std::vector<uint16_t> racThreads;
         Scn clientSchemaScn{Scn::none()};
+        // Native RAC lineage is independent of legacy manual RAC cursor format 3.
+        bool racOnline{false};
+        bool racResume{false};
+        uint64_t racStartupTimeoutS{300};
+        std::atomic<int64_t> racDeadlineMs{0};
+        std::string racEpoch;
+        std::string racFingerprint;
+        std::string racSchemaDigest;
+        std::vector<std::string> racSchemaInputs;
         uint64_t checkpoints{0};
         Scn checkpointScn{Scn::none()};
         Scn lastCheckpointScn{Scn::none()};
@@ -161,6 +170,8 @@ namespace OpenLogReplicator {
         [[nodiscard]] bool stateDiskRead(const std::string& name, uint64_t maxSize, std::string& in) const;
         [[nodiscard]] bool stateWrite(const std::string& name, Scn scn, const std::ostringstream& out) const;
         [[nodiscard]] bool stateDrop(const std::string& name) const;
+        [[nodiscard]] bool stateWriteAtomic(const std::string& name, const std::string& out, bool replace) const;
+        [[nodiscard]] std::string serializeBootstrapSchema();
         SchemaElement* addElement(const std::string& owner, const std::string& table, DbTable::OPTIONS options1, DbTable::OPTIONS options2);
         SchemaElement* addElement(const std::string& owner, const std::string& table, DbTable::OPTIONS options);
         void resetElements();
@@ -169,6 +180,9 @@ namespace OpenLogReplicator {
 
         void waitForWriter(Thread* t);
         void waitForReplicator(Thread* t);
+        [[nodiscard]] bool waitForNativeReady(Thread* t);
+        void beginNativeStartup();
+        void checkNativeDeadline() const;
         void setStatusReady(Thread* t);
         void setStatusStarting(Thread* t);
         void setStatusReplicating(Thread* t);

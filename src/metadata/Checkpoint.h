@@ -38,6 +38,9 @@ namespace OpenLogReplicator {
     class Checkpoint final : public Thread {
     public:
         static constexpr off_t CONFIG_FILE_MAX_SIZE = 1048576;
+        // False for the rac reader types: their effective configuration is bound to the bootstrap and checked only at startup, so a
+        // changed config file is not reloaded (set before the thread starts)
+        bool reloadConfig{true};
 
     protected:
         Metadata* metadata;

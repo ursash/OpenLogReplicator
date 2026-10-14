@@ -72,6 +72,7 @@ namespace OpenLogReplicator {
         virtual void verifySchema(Scn currentScn);
         virtual void createSchema();
         virtual void updateOnlineRedoLogData();
+        virtual void prepareReplicate() {}
 
     public:
         Replicator(Ctx* newCtx, void (*newArchGetLog)(Replicator* replicator), Builder* newBuilder, Metadata* newMetadata,

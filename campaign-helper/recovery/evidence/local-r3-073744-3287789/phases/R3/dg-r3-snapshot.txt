@@ -1,5 +1,0 @@
-SNAPSHOT run=mock-recovery port=39233
-config_sha=aaa111
-state_fp=bbb222
-olr_pid=1001
-baseline_follower: 2001 bash inventory_follow RUN_DIR=/opt/olr-rac/runs/baseline-olr

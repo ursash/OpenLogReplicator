@@ -35,7 +35,9 @@ namespace OpenLogReplicator {
         void list(std::set<std::string>& namesList) const override;
         [[nodiscard]] bool read(const std::string& name, uint64_t maxSize, std::string& in) override;
         void write(const std::string& name, Scn scn, const std::ostringstream& out) override;
+        void writeAtomic(const std::string& name, const std::string& out, bool replace) override;
         void drop(const std::string& name) override;
+        void dropAtomic(const std::string& name) override;
     };
 }
 

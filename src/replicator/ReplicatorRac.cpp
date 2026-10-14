@@ -3,19 +3,19 @@
 
 This file is part of OpenLogReplicator.
 
-OpenLogReplicator is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License as published
-by the Free Software Foundation; either version 3, or (at your option)
-any later version.
+This program is free software: you can redistribute it and/or
+modify it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-OpenLogReplicator is distributed in the hope that it will be useful,
+This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-Public License for more details.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with OpenLogReplicator; see the file LICENSE;  If not see
-<http://www.gnu.org/licenses/>.  */
+You should have received a copy of the GNU Affero General Public
+License along with this program; see the file LICENSE;
+If not, see <http://www.gnu.org/licenses/>. */
 
 #include <algorithm>
 #include <array>
@@ -116,6 +116,7 @@ namespace OpenLogReplicator {
         }
 
         file.sequence = Seq(ctx->read32(header + 8));
+        file.compatVsn = ctx->read32(header + 20);
         file.dbid = ctx->read32(header + 24);
         file.activation = ctx->read32(header + 52);
         file.numBlocks = ctx->read32(header + 156);
@@ -152,6 +153,9 @@ namespace OpenLogReplicator {
     // 16-17 and 24-27 (file size in blocks), header block bytes 14-15 (checksum) and 236-239 (flags). Both headers already passed
     // the checksum and identity checks
     bool ReplicatorRac::sameStandbyCopy(const RedoFile& file1, const RedoFile& file2) const {
+        if (metadata->racOnline && (file1.blockSize != 512 || file2.blockSize != 512 ||
+                file1.compatVsn != 0x13000000 || file2.compatVsn != 0x13000000))
+            throw RuntimeException(10074, "native RAC standby/archive copy comparison is qualified only for compatibility 19.0 and 512-byte blocks");
         const uint blockSize = file1.blockSize;
         std::vector<uint8_t> buffer1(static_cast<size_t>(blockSize) * 2);
         std::vector<uint8_t> buffer2(static_cast<size_t>(blockSize) * 2);
@@ -821,7 +825,8 @@ namespace OpenLogReplicator {
         }
 
         const Scn replayScn = std::min(metadata->firstDataScn, metadata->firstSchemaScn);
-        planStreams(collectInventory(), replayScn);
+        if (!startupPlanned)
+            planStreams(collectInventory(), replayScn);
 
         // Every concurrently read thread gets an equal part of the read buffer pool, minus two chunks for a partially consumed first
         // chunk and a read that ends past the cap

@@ -40,7 +40,11 @@ namespace OpenLogReplicator {
         virtual void list(std::set<std::string>& namesList) const = 0;
         [[nodiscard]] virtual bool read(const std::string& name, uint64_t maxSize, std::string& in) = 0;
         virtual void write(const std::string& name, Scn scn, const std::ostringstream& out) = 0;
+        // Durable replace (or, with replace false, create-once) of a whole state element; used by the rac reader types' bootstrap
+        // descriptor and writer cursor
+        virtual void writeAtomic(const std::string& name, const std::string& out, bool replace) = 0;
         virtual void drop(const std::string& name) = 0;
+        virtual void dropAtomic(const std::string& name) = 0;
     };
 }
 

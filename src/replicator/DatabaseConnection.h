@@ -26,6 +26,7 @@ If not, see <http://www.gnu.org/licenses/>. */
 
 namespace OpenLogReplicator {
     class DatabaseEnvironment;
+    class Metadata;
 
     class DatabaseConnection final {
     public:
@@ -34,6 +35,8 @@ namespace OpenLogReplicator {
         std::string connectString;
         bool sysAsm;
         bool connected{false};
+        // Native RAC startup uses a monotonic deadline; stock connections retain their existing timeout behavior.
+        Metadata* startupMetadata{nullptr};
 
         DatabaseEnvironment* env;
         OCIError* errhp{nullptr};
@@ -46,6 +49,7 @@ namespace OpenLogReplicator {
 
         void connect();
         void disconnect();
+        void checkStartupDeadline();
     };
 }
 

@@ -45,6 +45,7 @@ namespace OpenLogReplicator {
     }
 
     void DatabaseStatement::createStatement(const std::string_view& sql) {
+        conn->checkStartupDeadline();
         unbindAll();
 
         if (executed) {
@@ -57,6 +58,7 @@ namespace OpenLogReplicator {
     }
 
     int DatabaseStatement::executeQuery() {
+        conn->checkStartupDeadline();
         const sword status = OCIStmtExecute(conn->svchp, stmthp, conn->errhp, 1, 0, nullptr, nullptr,
                                             OCI_DEFAULT); // COMMIT_ON_SUCCESS
         executed = true;
@@ -78,6 +80,7 @@ namespace OpenLogReplicator {
     }
 
     int DatabaseStatement::next() const {
+        conn->checkStartupDeadline();
         const sword status = OCIStmtFetch2(stmthp, conn->errhp, 1, OCI_FETCH_NEXT, 0, OCI_DEFAULT);
         if (status == OCI_NO_DATA)
             return 0;

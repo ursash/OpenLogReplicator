@@ -3,19 +3,19 @@
 
 This file is part of OpenLogReplicator.
 
-OpenLogReplicator is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License as published
-by the Free Software Foundation; either version 3, or (at your option)
-any later version.
+This program is free software: you can redistribute it and/or
+modify it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-OpenLogReplicator is distributed in the hope that it will be useful,
+This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-Public License for more details.
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with OpenLogReplicator; see the file LICENSE;  If not see
-<http://www.gnu.org/licenses/>.  */
+You should have received a copy of the GNU Affero General Public
+License along with this program; see the file LICENSE;
+If not, see <http://www.gnu.org/licenses/>. */
 
 #ifndef REPLICATOR_RAC_H_
 #define REPLICATOR_RAC_H_
@@ -33,13 +33,14 @@ namespace OpenLogReplicator {
     // online redo logs. Standby redo logs listed in "rac-standby-log" are used only once they are complete, like archived logs.
     // Experimental, opt-in "rac-standby-live" (rac-follow only): the growing standby redo log that continues each thread's contiguous
     // chain is read too, without blocking the other threads; see processArchivedRedoLogs for the release rule and its assumptions.
-    class ReplicatorRac final : public Replicator {
+    class ReplicatorRac : public Replicator {
     protected:
         struct RedoFile {
             std::string path;
             uint64_t fileSize{0};
             uint blockSize{0};
             uint32_t dbid{0};
+            uint32_t compatVsn{0};
             uint16_t thread{0};
             Seq sequence{Seq::zero()};
             typeResetlogs resetlogs{0};
@@ -104,7 +105,7 @@ namespace OpenLogReplicator {
         RedoFile readHeader(const std::string& path) const;
         bool sameContent(const RedoFile& file1, const RedoFile& file2, uint64_t from) const;
         bool sameStandbyCopy(const RedoFile& file1, const RedoFile& file2) const;
-        std::vector<RedoFile> collectInventory();
+        virtual std::vector<RedoFile> collectInventory();
         static const RedoFile* extendChain(std::vector<RedoFile>& chain, const std::vector<RedoFile>& threadFiles);
         void appendGrowing(std::vector<RedoFile>& chain, const std::vector<RedoFile>& threadFiles) const;
         void logPlanFile(const RedoFile& file) const;
@@ -127,6 +128,7 @@ namespace OpenLogReplicator {
         std::vector<std::string> standbyLogs;
         // "rac-standby-live" (rac-follow only, needs "redo-verify-delay-us" > 0)
         bool standbyLive{false};
+        bool startupPlanned{false};
 
         ReplicatorRac(Ctx* newCtx, void (*newArchGetLog)(Replicator* replicator), Builder* newBuilder, Metadata* newMetadata,
                       TransactionBuffer* newTransactionBuffer, std::string newAlias, std::string newDatabase, std::vector<uint16_t> newThreads,

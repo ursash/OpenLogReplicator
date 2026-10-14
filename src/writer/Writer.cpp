@@ -29,6 +29,7 @@ If not, see <http://www.gnu.org/licenses/>. */
 #include "../common/exception/RuntimeException.h"
 #include "../common/metrics/Metrics.h"
 #include "../metadata/Metadata.h"
+#include "../state/State.h"
 #include "Writer.h"
 
 namespace OpenLogReplicator {
@@ -57,6 +58,7 @@ namespace OpenLogReplicator {
 
         // After a rewind a message confirmed before the client reconnected can be queued again; it must wait for a new confirm
         msg->unsetFlag(BuilderMsg::OUTPUT_BUFFER::CONFIRMED);
+        msg->unsetFlag(BuilderMsg::OUTPUT_BUFFER::CLIENT_ACK);
         queue[currentQueueSize++] = msg;
         hwmQueueSize = std::max(currentQueueSize, hwmQueueSize);
     }
@@ -126,7 +128,7 @@ namespace OpenLogReplicator {
         oldSize = replayStart;
     }
 
-    void Writer::confirmMessage(BuilderMsg* msg) {
+    void Writer::confirmMessage(BuilderMsg* msg, bool clientAck) {
         if (ctx->metrics != nullptr && msg != nullptr) {
             ctx->metrics->emitBytesConfirmed(msg->size);
             ctx->metrics->emitMessagesConfirmed(1);
@@ -145,6 +147,8 @@ namespace OpenLogReplicator {
         }
 
         msg->setFlag(BuilderMsg::OUTPUT_BUFFER::CONFIRMED);
+        if (clientAck)
+            msg->setFlag(BuilderMsg::OUTPUT_BUFFER::CLIENT_ACK);
         if (msg->isFlagSet(BuilderMsg::OUTPUT_BUFFER::ALLOCATED)) {
             delete[] msg->data;
             msg->unsetFlag(BuilderMsg::OUTPUT_BUFFER::ALLOCATED);
@@ -154,11 +158,15 @@ namespace OpenLogReplicator {
         {
             while (currentQueueSize > 0 && queue[0]->isFlagSet(BuilderMsg::OUTPUT_BUFFER::CONFIRMED)) {
                 maxId = queue[0]->queueId;
-                if (confirmedScn == Scn::none() || msg->lwnScn > confirmedScn) {
-                    confirmedScn = msg->lwnScn;
-                    confirmedIdx = msg->lwnIdx;
-                } else if (msg->lwnScn == confirmedScn && msg->lwnIdx > confirmedIdx)
-                    confirmedIdx = msg->lwnIdx;
+                // Internal suppression/releases do not invent a native client ACK. Advance from the actual contiguous head.
+                const BuilderMsg* confirmed = metadata->racOnline ? queue[0] : msg;
+                if (!metadata->racOnline || confirmed->isFlagSet(BuilderMsg::OUTPUT_BUFFER::CLIENT_ACK)) {
+                    if (confirmedScn == Scn::none() || confirmed->lwnScn > confirmedScn) {
+                        confirmedScn = confirmed->lwnScn;
+                        confirmedIdx = confirmed->lwnIdx;
+                    } else if (confirmed->lwnScn == confirmedScn && confirmed->lwnIdx > confirmedIdx)
+                        confirmedIdx = confirmed->lwnIdx;
+                }
 
                 if (--currentQueueSize == 0)
                     break;
@@ -408,22 +416,29 @@ namespace OpenLogReplicator {
         }
         const std::string name(database + "-chkpt");
         const bool rac = !metadata->racThreads.empty();
+        if (metadata->racOnline && metadata->racEpoch.empty())
+            throw RuntimeException(10077, "native RAC ACK without a published descriptor");
         std::ostringstream ss;
         ss << R"({"database":")" << database
                 << R"(","scn":)" << std::dec << confirmedScn.toString()
                 << R"(,"idx":)" << std::dec << confirmedIdx
                 << R"(,"first-data-scn":)" << std::dec << metadata->firstDataScn.toString()
-                << R"(,"cursor-format":)" << std::dec << (rac ? CURSOR_FORMAT_RAC : CURSOR_FORMAT);
+                << R"(,"cursor-format":)" << std::dec << (metadata->racOnline ? CURSOR_FORMAT_RAC_ONLINE : rac ? CURSOR_FORMAT_RAC : CURSOR_FORMAT);
         if (rac) {
             ss << R"(,"schema-scn":)" << std::dec << metadata->firstSchemaScn.toString() << R"(,"rac-threads":[)";
             for (size_t i = 0; i < metadata->racThreads.size(); ++i)
                 ss << (i > 0 ? "," : "") << std::dec << metadata->racThreads[i];
             ss << "]";
         }
+        if (metadata->racOnline)
+            ss << R"(,"epoch":")" << metadata->racEpoch << R"(","fingerprint":")" << metadata->racFingerprint
+               << R"(","schema-digest":")" << metadata->racSchemaDigest << '"';
         ss << R"(,"resetlogs":)" << std::dec << metadata->resetlogs
                 << R"(,"activation":)" << std::dec << metadata->activation << "}";
 
-        if (metadata->stateWrite(name, confirmedScn, ss)) {
+        if (metadata->racOnline)
+            metadata->state->writeAtomic(name, ss.str(), true);
+        if (metadata->racOnline || metadata->stateWrite(name, confirmedScn, ss)) {
             checkpointScn = confirmedScn;
             checkpointIdx = confirmedIdx;
             checkpointTime = now;
@@ -436,8 +451,14 @@ namespace OpenLogReplicator {
         // Checkpoint is present - read it
         std::string checkpoint;
         rapidjson::Document document;
-        if (!metadata->stateRead(name, CHECKPOINT_FILE_MAX_SIZE, checkpoint))
+        if (!metadata->stateRead(name, CHECKPOINT_FILE_MAX_SIZE, checkpoint)) {
+            if (metadata->racOnline && metadata->racResume) {
+                metadata->clientSchemaScn = metadata->firstSchemaScn;
+                metadata->beginNativeStartup();
+                metadata->setStatusStarting(this);
+            }
             return;
+        }
 
         if (unlikely(checkpoint.empty() || document.Parse(checkpoint.c_str()).HasParseError()))
             throw DataException(20001, "file: " + name + " offset: " + std::to_string(document.GetErrorOffset()) +
@@ -453,7 +474,10 @@ namespace OpenLogReplicator {
                 "first-data-scn",
                 "cursor-format",
                 "schema-scn",
-                "rac-threads"
+                "rac-threads",
+                "epoch",
+                "fingerprint",
+                "schema-digest"
             };
             Ctx::checkJsonFields(name, document, documentNames);
         }
@@ -462,8 +486,13 @@ namespace OpenLogReplicator {
         if (unlikely(database != databaseJson))
             throw DataException(20001, "file: " + name + " - invalid database name: " + databaseJson);
 
-        metadata->setResetlogs(Ctx::getJsonFieldU32(name, document, "resetlogs"));
-        metadata->setActivation(Ctx::getJsonFieldU32(name, document, "activation"));
+        if (metadata->racOnline && (Ctx::getJsonFieldU32(name, document, "resetlogs") != metadata->resetlogs ||
+                Ctx::getJsonFieldU32(name, document, "activation") != metadata->activation))
+            throw DataException(20001, "native RAC writer cursor has a different incarnation");
+        if (!metadata->racOnline) {
+            metadata->setResetlogs(Ctx::getJsonFieldU32(name, document, "resetlogs"));
+            metadata->setActivation(Ctx::getJsonFieldU32(name, document, "activation"));
+        }
 
         // Cursor format 2: idx is the emitted 1-based c_idx of data messages (checkpoint messages take no ordinal), and the
         // acknowledged cursor (scn, idx) only suppresses delivered output while first-data-scn keeps the bootstrap commit
@@ -472,7 +501,7 @@ namespace OpenLogReplicator {
         // Cursor format 3 is the rac-batch form: scn is a record scn of the merged stream, not an LWN scn, and "schema-scn" and
         // "rac-threads" fix the schema cut and thread set of the replayed plan. Neither mode accepts the other mode's cursor.
         const bool rac = !metadata->racThreads.empty();
-        const uint64_t cursorFormat = rac ? CURSOR_FORMAT_RAC : CURSOR_FORMAT;
+        const uint64_t cursorFormat = metadata->racOnline ? CURSOR_FORMAT_RAC_ONLINE : rac ? CURSOR_FORMAT_RAC : CURSOR_FORMAT;
         if (!document.HasMember("cursor-format") || Ctx::getJsonFieldU64(name, document, "cursor-format") != cursorFormat ||
                 !document.HasMember("first-data-scn") || (rac && (!document.HasMember("schema-scn") || !document.HasMember("rac-threads"))))
             throw DataException(20001, "file: " + name + " - unsupported writer checkpoint format (expected \"cursor-format\": " +
@@ -497,6 +526,14 @@ namespace OpenLogReplicator {
             }
             metadata->clientSchemaScn = Ctx::getJsonFieldU64(name, document, "schema-scn");
         }
+        if (metadata->racOnline) {
+            if (!metadata->racResume || Ctx::getJsonFieldS(name, 64, document, "epoch") != metadata->racEpoch ||
+                    Ctx::getJsonFieldS(name, 64, document, "fingerprint") != metadata->racFingerprint ||
+                    Ctx::getJsonFieldS(name, 64, document, "schema-digest") != metadata->racSchemaDigest ||
+                    metadata->clientSchemaScn != metadata->firstSchemaScn ||
+                    Ctx::getJsonFieldU64(name, document, "first-data-scn") != metadata->firstDataScn.getData())
+                throw DataException(20001, "native RAC writer cursor does not match the original bootstrap lineage");
+        }
 
         // Started earlier - continue work and ignore default startup parameters
         checkpointScn = Ctx::getJsonFieldU64(name, document, "scn");
@@ -513,7 +550,15 @@ namespace OpenLogReplicator {
 
         ctx->info(0, "checkpoint - all confirmed till scn: " + checkpointScn.toString() + ", idx: " +
                   std::to_string(checkpointIdx));
-        metadata->setStatusReplicating(this);
+        if (metadata->racOnline) {
+            if (checkpointScn == Scn::none() || checkpointScn == Scn::zero())
+                throw DataException(20001, "native RAC writer cursor is not a concrete acknowledged position");
+            confirmedScn = checkpointScn;
+            confirmedIdx = checkpointIdx;
+            metadata->beginNativeStartup();
+            metadata->setStatusStarting(this);
+        } else
+            metadata->setStatusReplicating(this);
     }
 
     void Writer::wakeUp() {

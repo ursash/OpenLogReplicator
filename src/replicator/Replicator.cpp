@@ -167,7 +167,8 @@ namespace OpenLogReplicator {
             metadata->waitForWriter(ctx->parserThread);
 
             loadDatabaseMetadata();
-            metadata->readCheckpoints();
+            if (!metadata->racOnline)
+                metadata->readCheckpoints();
             if (!ctx->isFlagSet(Ctx::REDO_FLAGS::ARCH_ONLY))
                 updateOnlineRedoLogData();
             ctx->info(0, "timezone: " + Data::timezoneToString(-timezone) + ", db-timezone: " + Data::timezoneToString(metadata->dbTimezone) +
@@ -198,7 +199,7 @@ namespace OpenLogReplicator {
                     // No schema available?
                     if (metadata->schema->scn == Scn::none())
                         createSchema();
-                    else
+                    else if (!metadata->racOnline)
                         metadata->allowCheckpoints();
                     metadata->schema->updateXmlCtx();
 
@@ -229,6 +230,7 @@ namespace OpenLogReplicator {
                 }
 
                 // Boot succeeded
+                prepareReplicate();
                 ctx->info(0, "resume writer");
                 metadata->setStatusReplicating(this);
             } while (metadata->status != Metadata::STATUS::REPLICATING);

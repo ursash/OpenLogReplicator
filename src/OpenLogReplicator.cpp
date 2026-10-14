@@ -48,6 +48,7 @@ If not, see <http://www.gnu.org/licenses/>. */
 #include "builder/BuilderJson.h"
 #include "common/Ctx.h"
 #include "common/MemoryManager.h"
+#include "common/Sha256.h"
 #include "common/exception/ConfigurationException.h"
 #include "common/exception/RuntimeException.h"
 #include "common/metrics/Metrics.h"
@@ -63,6 +64,7 @@ If not, see <http://www.gnu.org/licenses/>. */
 #include "replicator/Replicator.h"
 #include "replicator/ReplicatorBatch.h"
 #include "replicator/ReplicatorRac.h"
+#include "replicator/RacBootstrap.h"
 #include "state/StateDisk.h"
 #include "writer/WriterDiscard.h"
 #include "writer/WriterFile.h"
@@ -70,6 +72,7 @@ If not, see <http://www.gnu.org/licenses/>. */
 
 #ifdef LINK_LIBRARY_OCI
 #include "replicator/ReplicatorOnline.h"
+#include "replicator/ReplicatorRacOnline.h"
 #endif /* LINK_LIBRARY_OCI */
 
 #ifdef LINK_LIBRARY_PROTOBUF
@@ -90,6 +93,87 @@ If not, see <http://www.gnu.org/licenses/>. */
 #endif /* LINK_LIBRARY_PROMETHEUS */
 
 namespace OpenLogReplicator {
+    namespace {
+        // Effective source configuration of the native RAC bootstrap contract, a canonical JSON object: every value after
+        // defaults as an exact unsigned/signed integer, object keys sorted, filter elements and their key and tag lists in the effective
+        // (configured) order, skip-xid as the sorted set it is. Not part of it, as they don't change which messages are emitted, their
+        // content, order, grouping or ordinals: alias, memory, state, metrics, log-level, trace, dump-*, debug stop-*, filter dump-xid and
+        // separator (key and tag are compared as parsed lists), the sleep, retry, verify-delay and refresh intervals, redo-copy-path, the
+        // redo-log and rac-standby-log paths (the inventory checks identity and content), log-timezone, format flush-buffer, the writer
+        // destination (uri, topic, properties, output), writer polling and queue size, the file writer's file layout, flags arch-only,
+        // direct-disable and checkpoint-keep, and disable-checks json-tags. start-scn, the schema checkpoint, the incarnation and
+        // rac-threads are bound by the bootstrap descriptor on their own; the reader profile, versions and the writer part are added by
+        // ReplicatorRac::admit.
+        std::string racSourceContract(const Ctx* ctx, const Metadata* metadata, const TransactionBuffer* transactionBuffer, const Format& format,
+                                      const std::string& formatType) {
+            std::ostringstream ss;
+            const auto str = [&ss](const std::string& value) {
+                ss << '"';
+                Data::writeEscapeValue(ss, value);
+                ss << '"';
+            };
+            const auto list = [&ss, &str](const std::vector<std::string>& values) {
+                ss << '[';
+                for (size_t i = 0; i < values.size(); ++i) {
+                    if (i > 0)
+                        ss << ',';
+                    str(values[i]);
+                }
+                ss << ']';
+            };
+            static constexpr uint operationalFlags = static_cast<uint>(Ctx::REDO_FLAGS::ARCH_ONLY) |
+                    static_cast<uint>(Ctx::REDO_FLAGS::DIRECT_DISABLE) | static_cast<uint>(Ctx::REDO_FLAGS::CHECKPOINT_KEEP);
+
+            ss << R"({"database":)";
+            str(metadata->database);
+            ss << R"(,"disable-checks":)" << (ctx->disableChecks & ~static_cast<uint>(Ctx::DISABLE_CHECKS::JSON_TAGS)) << R"(,"filter":{"skip-xid":)";
+            std::vector<std::string> xids;
+            for (const Xid& xid: transactionBuffer->skipXidList)
+                xids.push_back(xid.toString());
+            list(xids);
+            ss << R"(,"table":[)";
+            for (size_t i = 0; i < metadata->schemaElements.size(); ++i) {
+                const SchemaElement* element = metadata->schemaElements[i];
+                ss << (i > 0 ? R"(,{"condition":)" : R"({"condition":)");
+                str(element->condition);
+                ss << R"(,"key":)";
+                list(element->keyList);
+                ss << R"(,"options":)" << static_cast<uint>(element->options) << R"(,"owner":)";
+                str(element->owner);
+                ss << R"(,"table":)";
+                str(element->table);
+                ss << R"(,"tag":)";
+                list(element->tagList);
+                ss << R"(,"tag-type":)" << static_cast<uint>(element->tagType) << '}';
+            }
+            ss << R"(]},"flags":)" << (ctx->flags & ~operationalFlags) <<
+                    R"(,"format":{"attributes":)" << static_cast<uint>(format.attributesFormat) <<
+                    R"(,"char":)" << static_cast<uint>(format.charFormat) <<
+                    R"(,"column":)" << static_cast<uint>(format.columnFormat) <<
+                    R"(,"db":)" << static_cast<uint>(format.dbFormat) <<
+                    R"(,"interval-dts":)" << static_cast<uint>(format.intervalDtsFormat) <<
+                    R"(,"interval-ytm":)" << static_cast<uint>(format.intervalYtmFormat) <<
+                    R"(,"message":)" << static_cast<uint>(format.messageFormat) <<
+                    R"(,"redo-thread":)" << static_cast<uint>(format.redoThreadFormat) <<
+                    R"(,"rid":)" << static_cast<uint>(format.ridFormat) <<
+                    R"(,"schema":)" << static_cast<uint>(format.schemaFormat) <<
+                    R"(,"scn":)" << static_cast<uint>(format.scnFormat) <<
+                    R"(,"scn-type":)" << static_cast<uint>(format.scnType) <<
+                    R"(,"timestamp":)" << static_cast<uint>(format.timestampFormat) <<
+                    R"(,"timestamp-metadata":)" << static_cast<uint>(format.timestampMetadataFormat) <<
+                    R"(,"timestamp-type":)" << static_cast<uint>(format.timestampType) <<
+                    R"(,"timestamp-tz":)" << static_cast<uint>(format.timestampTzFormat) << R"(,"type":)";
+            str(formatType);
+            ss << R"(,"unknown":)" << static_cast<uint>(format.unknownFormat) <<
+                    R"(,"unknown-type":)" << static_cast<uint>(format.unknownType) <<
+                    R"(,"user-type":)" << static_cast<uint>(format.userType) <<
+                    R"(,"xid":)" << static_cast<uint>(format.xidFormat) <<
+                    R"(},"timezone":{"db":)" << ctx->dbTimezone << R"(,"host":)" << ctx->hostTimezone <<
+                    R"(},"transaction-max-bytes":)" << ctx->transactionSizeMax << '}';
+            return ss.str();
+        }
+    }
+
     OpenLogReplicator::OpenLogReplicator(std::string newConfigFileName, Ctx* newCtx):
             configFileName(std::move(newConfigFileName)),
             ctx(newCtx) {
@@ -442,6 +526,9 @@ namespace OpenLogReplicator {
                     throw ConfigurationException(30001, std::string("bad JSON, invalid \"type\" value: ") + stateTypeStr + ", expected: one of {\"disk\"}");
             }
 
+            if (stateJson.HasMember("path"))
+                statePath = Ctx::getJsonFieldS(configFileName, Ctx::MAX_PATH_LENGTH, stateJson, "path");
+
             if (stateJson.HasMember("interval-s"))
                 ctx->checkpointIntervalS = Ctx::getJsonFieldU64(configFileName, stateJson, "interval-s");
 
@@ -460,6 +547,29 @@ namespace OpenLogReplicator {
         if (sourceArrayJson.Size() != 1) {
             throw ConfigurationException(30001, "bad JSON, invalid \"source\" value: " + std::to_string(sourceArrayJson.Size()) +
                                          " elements, expected: 1 element");
+        }
+
+        if (racInit) {
+#if defined(LINK_LIBRARY_OCI) && defined(LINK_LIBRARY_PROTOBUF)
+            const auto& sourceJson = sourceArrayJson[0];
+            const auto& readerJson = Ctx::getJsonFieldO(configFileName, sourceJson, "reader");
+            if (Ctx::getJsonFieldS(configFileName, 128, readerJson, "type") != "rac-online")
+                throw ConfigurationException(30001, "--rac-init is only valid for reader type rac-online");
+            for (const char* field: {"user", "password", "server"})
+                (void)Ctx::getJsonFieldS(configFileName, Ctx::JSON_SERVER_LENGTH, readerJson, field);
+            for (const char* field: {"start-scn", "start-seq", "start-time", "start-time-rel", "rac-threads", "rac-dbid", "redo-log",
+                                    "rac-standby-log", "rac-standby-live"})
+                if (readerJson.HasMember(field))
+                    throw ConfigurationException(30001, "rac-online discovers its start and logs; remove reader field " + std::string(field));
+            const auto& target = Ctx::getJsonFieldA(configFileName, document, "target");
+            if (target.Size() != 1 || Ctx::getJsonFieldS(configFileName, 128,
+                    Ctx::getJsonFieldO(configFileName, target[0], "writer"), "type") != "network")
+                throw ConfigurationException(30001, "rac-online initialization requires one network writer");
+            RacBootstrap::createIntent(ctx, statePath, Ctx::getJsonFieldS(configFileName, Ctx::JSON_PARAMETER_LENGTH, sourceJson, "name"));
+            return 0;
+#else
+            throw ConfigurationException(30001, "--rac-init requires OCI and Protobuf in this build");
+#endif
         }
 
         for (rapidjson::SizeType j = 0; j < sourceArrayJson.Size(); ++j) {
@@ -514,7 +624,8 @@ namespace OpenLogReplicator {
                     "rac-threads",
                     "rac-dbid",
                     "rac-standby-log",
-                    "rac-standby-live"
+                    "rac-standby-live",
+                    "startup-timeout-s"
                 };
                 Ctx::checkJsonFields(configFileName, readerJson, readerNames);
             }
@@ -612,6 +723,7 @@ namespace OpenLogReplicator {
 
             // METADATA
             auto* metadata = new Metadata(ctx, locales, name, startScn, startSequence, startTime, startTimeRel);
+            metadata->racOnline = Ctx::getJsonFieldS(configFileName, 128, readerJson, "type") == "rac-online";
             metadatas.push_back(metadata);
             metadata->resetElements();
             if (!debugOwner.empty())
@@ -630,6 +742,8 @@ namespace OpenLogReplicator {
 
             // CHECKPOINT
             auto* checkpoint = new Checkpoint(ctx, metadata, alias + "-checkpoint", configFileName, configFileStat.st_mtime);
+            if (metadata->racOnline)
+                checkpoint->reloadConfig = false;
             checkpoints.push_back(checkpoint);
             ctx->spawnThread(checkpoint);
 
@@ -962,6 +1076,38 @@ namespace OpenLogReplicator {
                 throw ConfigurationException(30001, "bad JSON, invalid \"type\" value: " + readerType +
                                              ", expected: not \"online\" since the code is not compiled");
 #endif /*LINK_LIBRARY_OCI*/
+            } else if (readerType == "rac-online") {
+#if defined(LINK_LIBRARY_OCI) && defined(LINK_LIBRARY_PROTOBUF)
+                for (const char* field: {"start-scn", "start-seq", "start-time", "start-time-rel", "rac-threads", "rac-dbid", "redo-log",
+                                        "rac-standby-log", "rac-standby-live"})
+                    if (readerJson.HasMember(field))
+                        throw ConfigurationException(30001, "rac-online discovers its start and logs; remove reader field " + std::string(field));
+                if (sourceJson.HasMember("arch") || ctx->isFlagSet(Ctx::REDO_FLAGS::ADAPTIVE_SCHEMA) || ctx->isFlagSet(Ctx::REDO_FLAGS::SCHEMALESS))
+                    throw ConfigurationException(30001, "rac-online requires a consistent online schema and discovered archives");
+                const auto& targets = Ctx::getJsonFieldA(configFileName, document, "target");
+                if (targets.Size() != 1 || Ctx::getJsonFieldS(configFileName, 128,
+                        Ctx::getJsonFieldO(configFileName, targets[0], "writer"), "type") != "network")
+                    throw ConfigurationException(30001, "rac-online currently requires one network writer");
+                if (readerJson.HasMember("startup-timeout-s"))
+                    metadata->racStartupTimeoutS = Ctx::getJsonFieldU64(configFileName, readerJson, "startup-timeout-s");
+                if (metadata->racStartupTimeoutS < 1 || metadata->racStartupTimeoutS > 3600)
+                    throw ConfigurationException(30001, "rac-online startup-timeout-s must be between 1 and 3600");
+                if (!ctx->isFlagSet(Ctx::REDO_FLAGS::ARCH_ONLY)) {
+                    if (!sourceJson.HasMember("redo-verify-delay-us"))
+                        ctx->redoVerifyDelayUs = 500000;
+                    if (ctx->redoVerifyDelayUs == 0)
+                        throw ConfigurationException(30001, "live rac-online requires redo-verify-delay-us > 0");
+                }
+                replicator = new ReplicatorRacOnline(ctx, builder, metadata, transactionBuffer, alias, name,
+                    Ctx::getJsonFieldS(configFileName, Ctx::JSON_USERNAME_LENGTH, readerJson, "user"),
+                    Ctx::getJsonFieldS(configFileName, Ctx::JSON_PASSWORD_LENGTH, readerJson, "password"),
+                    Ctx::getJsonFieldS(configFileName, Ctx::JSON_SERVER_LENGTH, readerJson, "server"));
+                builder->initialize();
+                replicator->initialize();
+                mainProcessMapping(readerJson);
+#else
+                throw ConfigurationException(30001, "rac-online requires OCI and Protobuf in this build");
+#endif
             } else if (readerType == "offline") {
                 replicator = new Replicator(ctx, archGetLog, builder, metadata, transactionBuffer, alias, name);
                 builder->initialize();
@@ -1113,6 +1259,14 @@ namespace OpenLogReplicator {
             }
 
             metadata->commitElements();
+            if (metadata->racOnline) {
+#ifdef LINK_LIBRARY_OCI
+                metadata->racFingerprint = Sha256::hex(racSourceContract(ctx, metadata, transactionBuffer, format, formatType) +
+                    "rac-online-closed-v1;writer=network;max-message-mb=0;arch-only=" +
+                    std::to_string(ctx->isFlagSet(Ctx::REDO_FLAGS::ARCH_ONLY)));
+                static_cast<ReplicatorRacOnline*>(replicator)->admit(statePath);
+#endif
+            }
             replicators.push_back(replicator);
             ctx->spawnThread(replicator);
             replicator = nullptr;

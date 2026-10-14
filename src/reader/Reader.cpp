@@ -280,7 +280,6 @@ namespace OpenLogReplicator {
 
         dbidHeader = ctx->read32(headerBuffer + blockSize + 24);
         activation = ctx->read32(headerBuffer + blockSize + 52);
-        threadHeader = ctx->read16(headerBuffer + blockSize + 176);
         numBlocksHeader = ctx->read32(headerBuffer + blockSize + 156);
         resetlogs = ctx->read32(headerBuffer + blockSize + 160);
         thread = ctx->read16(headerBuffer + blockSize + 176);
@@ -1076,10 +1075,6 @@ namespace OpenLogReplicator {
 
     uint32_t Reader::getDbid() const {
         return dbidHeader;
-    }
-
-    uint16_t Reader::getThread() const {
-        return threadHeader;
     }
 
     typeResetlogs Reader::getResetlogs() const {

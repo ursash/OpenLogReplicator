@@ -1,3 +1,0 @@
-2026-10-12T08:21:13.571Z phase=R1 exec=mock conn=ocr370-rac9-live-srl-MOCK-recovery
-2026-10-12T08:21:29.067Z missing or invalid RECOVERY_CATCHUP_RECEIPT for R1
-2026-10-12T08:21:29.089Z phase=R1 verdict=INCONCLUSIVE rc=2

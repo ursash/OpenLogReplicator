@@ -27,6 +27,7 @@ list(APPEND ListCommon
         common/MemoryManager.cpp
         common/Thread.cpp
         common/XmlCtx.cpp
+        common/Sha256.cpp
         common/exception/BootException.cpp
         common/exception/ConfigurationException.cpp
         common/exception/DataException.cpp
@@ -44,6 +45,7 @@ list(APPEND ListReplicator
         replicator/Replicator.cpp
         replicator/ReplicatorBatch.cpp
         replicator/ReplicatorRac.cpp)
+list(APPEND ListReplicator replicator/RacBootstrap.cpp)
 
 list(APPEND ListLocales
         locales/CharacterSet.cpp
@@ -100,7 +102,9 @@ if (WITH_OCI)
             replicator/DatabaseConnection.cpp
             replicator/DatabaseEnvironment.cpp
             replicator/DatabaseStatement.cpp
-            replicator/ReplicatorOnline.cpp)
+            replicator/ReplicatorOnline.cpp
+            replicator/OnlineCatalog.cpp
+            replicator/ReplicatorRacOnline.cpp)
 endif ()
 
 if (WITH_RDKAFKA)

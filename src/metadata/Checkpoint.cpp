@@ -64,6 +64,15 @@ namespace OpenLogReplicator {
         if (configFileStat.st_mtime == configFileChange)
             return;
 
+        // The rac reader types bind the effective configuration to the bootstrap at startup (ReplicatorRac::admit); a reloaded filter
+        // would change the output without that check
+        if (!reloadConfig) {
+            ctx->warning(60040, "config file changed, not reloaded: native RAC checks the configuration against the "
+                         "bootstrap only at startup");
+            configFileChange = configFileStat.st_mtime;
+            return;
+        }
+
         ctx->info(0, "config file changed, reloading");
 
         try {

@@ -1,3 +1,0 @@
-stop ok
-baseline_follower: 2001 unchanged
-baseline_follower_unchanged=1

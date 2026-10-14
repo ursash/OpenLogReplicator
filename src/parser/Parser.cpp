@@ -771,6 +771,10 @@ namespace OpenLogReplicator {
     }
 
     void Parser::appendToTransactionBegin(RedoLogRecord* redoLogRecord1) {
+        // For the qualified native PDB, a missing or changed redo identity is an error, not a skipped BEGIN.
+        if (metadata->racOnline && metadata->conId > 2 && redoLogRecord1->conId == metadata->conId &&
+                redoLogRecord1->xid.sqn() != 0 && (metadata->dbId == 0 || redoLogRecord1->dbId != metadata->dbId))
+            throw RuntimeException(10077, "native RAC BEGIN PDB DBID differs from qualified V_$DATABASE.CON_DBID");
         // Skip other PDB vectors
         if (metadata->dbId > 0 && redoLogRecord1->dbId != metadata->dbId)
             return;
@@ -812,12 +816,14 @@ namespace OpenLogReplicator {
         if (unlikely(brokenXidMapListIt != transactionBuffer->brokenXidMapList.end()))
             transactionBuffer->brokenXidMapList.erase(xidMap);
 
+        // BEGINs from other PDBs are filtered out. Require their history only when this commit belongs to the replay container.
+        const bool inReplayContainer = metadata->dbId == 0 || redoLogRecord1->conId == metadata->conId;
         Transaction* transaction = transactionBuffer->findTransaction(metadata->schema->xmlCtxDefault, redoLogRecord1->xid, redoLogRecord1->conId,
                                                                       redoLogRecord1->thread, true, ctx->isFlagSet(Ctx::REDO_FLAGS::SHOW_INCOMPLETE_TRANSACTIONS), false);
         if (unlikely(transaction == nullptr)) {
             // No state means the begin was not replayed; its table set and system flag are unknown, so the earlier cut applies. Rolled back
             // transactions emit nothing, and begins of sequence 0 are never tracked
-            if (requireBegin && redoLogRecord1->xid.sqn() != 0 && (redoLogRecord1->flg & OpCode::FLG_ROLLBACK_OP0504) == 0 &&
+            if (requireBegin && inReplayContainer && redoLogRecord1->xid.sqn() != 0 && (redoLogRecord1->flg & OpCode::FLG_ROLLBACK_OP0504) == 0 &&
                     redoLogRecord1->scn > std::min(metadata->firstDataScn, metadata->firstSchemaScn))
                 throw RuntimeException(10076, "transaction " + redoLogRecord1->xid.toString() + " (con " + std::to_string(redoLogRecord1->conId) +
                                        ") committed at scn " + redoLogRecord1->scn.toString() + " in " + path + " after the data/schema cut, but its "
@@ -835,7 +841,7 @@ namespace OpenLogReplicator {
         if ((transaction->commitScn > metadata->firstDataScn && !transaction->system) ||
             (transaction->commitScn > metadata->firstSchemaScn && transaction->system)) {
             if (transaction->begin) {
-                transaction->flush(metadata, builder);
+                transaction->flush(metadata, builder, lwnScn);
                 ctx->parserThread->contextSet(Thread::CONTEXT::CPU);
                 if (ctx->metrics != nullptr) {
                     if (transaction->rollback)
@@ -858,7 +864,7 @@ namespace OpenLogReplicator {
                     ctx->stopSoft();
                 }
             } else {
-                if (requireBegin && !transaction->rollback)
+                if (requireBegin && inReplayContainer && !transaction->rollback)
                     throw RuntimeException(10076, "transaction " + transaction->xid.toString() + " committed at scn " +
                                            transaction->commitScn.toString() + " after the data/schema cut, but its begin is not in the "
                                            "closed redo inventory; replay must start earlier");

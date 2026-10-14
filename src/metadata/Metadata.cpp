@@ -41,6 +41,7 @@ If not, see <http://www.gnu.org/licenses/>. */
 #include "../common/DbIncarnation.h"
 #include "../common/DbTable.h"
 #include "../common/Thread.h"
+#include "../common/Sha256.h"
 #include "../common/exception/ConfigurationException.h"
 #include "../common/exception/RuntimeException.h"
 #include "../common/metrics/Metrics.h"
@@ -212,6 +213,77 @@ namespace OpenLogReplicator {
             ctx->error(ex.code, ex.msg);
         }
         return false;
+    }
+
+    bool Metadata::stateWriteAtomic(const std::string& name, const std::string& out, bool replace) const {
+        try {
+            state->writeAtomic(name, out, replace);
+            return true;
+        } catch (RuntimeException& ex) {
+            ctx->error(ex.code, ex.msg);
+        }
+        return false;
+    }
+
+    std::string Metadata::serializeBootstrapSchema() {
+        std::unique_lock checkpointLock(mtxCheckpoint);
+        std::unique_lock schemaLock(mtxSchema);
+        struct Restore {
+            Metadata* metadata;
+            Scn scn;
+            Seq seq;
+            FileOffset offset;
+            Time time;
+            Seq minSeq;
+            FileOffset minOffset;
+            Xid minTransaction;
+            Scn refScn;
+            ~Restore() {
+                metadata->checkpointScn = scn;
+                metadata->checkpointSequence = seq;
+                metadata->checkpointFileOffset = offset;
+                metadata->checkpointTime = time;
+                metadata->minSequence = minSeq;
+                metadata->minFileOffset = minOffset;
+                metadata->minXid = minTransaction;
+                metadata->schema->refScn = refScn;
+            }
+        } restore{this, checkpointScn, checkpointSequence, checkpointFileOffset, checkpointTime,
+                  minSequence, minFileOffset, minXid, schema->refScn};
+        checkpointScn = firstSchemaScn;
+        checkpointSequence = Seq::zero();
+        checkpointFileOffset = FileOffset::zero();
+        minSequence = Seq::none();
+        std::ostringstream out;
+        serializer->serialize(this, out, true);
+        return out.str();
+    }
+
+    bool Metadata::waitForNativeReady(Thread* t) {
+        t->contextSet(Thread::CONTEXT::WAIT, Thread::REASON::METADATA_WAIT_FOR_REPLICATOR);
+        std::unique_lock lock(mtxCheckpoint);
+        while (status == STATUS::STARTING && !ctx->softShutdown && !ctx->hardShutdown) {
+            const int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+            if (racDeadlineMs != 0 && now >= racDeadlineMs) {
+                ctx->error(10077, "native RAC startup deadline exceeded; no successful START response");
+                ctx->stopHard();
+                break;
+            }
+            condWriter.wait_for(lock, std::chrono::milliseconds(100));
+        }
+        t->contextSet(Thread::CONTEXT::CPU);
+        return status == STATUS::REPLICATING && !ctx->softShutdown && !ctx->hardShutdown;
+    }
+
+    void Metadata::beginNativeStartup() {
+        racDeadlineMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() +
+                static_cast<int64_t>(racStartupTimeoutS * 1000);
+    }
+
+    void Metadata::checkNativeDeadline() const {
+        const int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+        if (ctx->softShutdown || ctx->hardShutdown || (racDeadlineMs != 0 && now >= racDeadlineMs))
+            throw RuntimeException(10077, "native RAC startup cancelled or deadline exceeded");
     }
 
     SchemaElement* Metadata::addElement(const std::string& owner, const std::string& table, DbTable::OPTIONS options1, DbTable::OPTIONS options2) {
@@ -406,6 +478,8 @@ namespace OpenLogReplicator {
     }
 
     void Metadata::writeCheckpoint(Thread* t, bool force) {
+        if (racOnline)
+            return;
         std::ostringstream ss;
 
         {
@@ -521,6 +595,8 @@ namespace OpenLogReplicator {
         std::string ss;
 
         const std::string name1(database + "-chkpt-" + scn.toString());
+        if (racOnline)
+            racSchemaInputs.clear();
         if (!stateRead(name1, CHECKPOINT_SCHEMA_FILE_MAX_SIZE, ss)) {
             if (unlikely(ctx->isTraceSet(Ctx::TRACE::CHECKPOINT)))
                 ctx->logTrace(Ctx::TRACE::CHECKPOINT, "no checkpoint file found, setting unknown sequence");
@@ -528,6 +604,8 @@ namespace OpenLogReplicator {
             sequence = Seq::none();
             return;
         }
+        if (racOnline)
+            racSchemaInputs.push_back(name1 + " " + Sha256::hex(ss));
         if (!serializer->deserialize(this, ss, name1, msgs, tablesUpdated, true, true)) {
             for (const auto& [_, tableName]: tablesUpdated) {
                 ctx->info(0, tableName);
@@ -576,6 +654,9 @@ namespace OpenLogReplicator {
     }
 
     void Metadata::deleteOldCheckpoints(Thread* t) {
+        // The native descriptor pins its original full schema; no bounded reader checkpoints exist yet.
+        if (racOnline)
+            return;
         std::set<Scn> scnToDrop;
 
         if (ctx->isFlagSet(Ctx::REDO_FLAGS::CHECKPOINT_KEEP))

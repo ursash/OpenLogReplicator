@@ -28,7 +28,7 @@ namespace OpenLogReplicator {
     WriterStream::WriterStream(Ctx* newCtx, std::string newAlias, std::string newDatabase, Builder* newBuilder, Metadata* newMetadata, Stream* newStream):
             Writer(newCtx, std::move(newAlias), std::move(newDatabase), newBuilder, newMetadata),
             stream(newStream) {
-        metadata->bootFailsafe = true;
+        metadata->bootFailsafe = !metadata->racOnline;
         ctx->parserThread = this;
     }
 
@@ -67,6 +67,10 @@ namespace OpenLogReplicator {
         }
 
         if (metadata->status == Metadata::STATUS::STARTING) {
+            if (metadata->racOnline && !metadata->waitForNativeReady(this)) {
+                response.set_code(pb::ResponseCode::FAILED_START);
+                return;
+            }
             ctx->logTrace(Ctx::TRACE::WRITER, "info, start");
             response.set_code(pb::ResponseCode::STARTING);
         }
@@ -92,6 +96,10 @@ namespace OpenLogReplicator {
             response.set_code(pb::ResponseCode::INVALID_DATABASE);
             return;
         }
+        if (metadata->racOnline && metadata->status == Metadata::STATUS::STARTING && !metadata->waitForNativeReady(this)) {
+            response.set_code(pb::ResponseCode::FAILED_START);
+            return;
+        }
 
         if (metadata->status == Metadata::STATUS::REPLICATING) {
             ctx->logTrace(Ctx::TRACE::WRITER, "client requested start when already started");
@@ -105,6 +113,11 @@ namespace OpenLogReplicator {
         if (metadata->status == Metadata::STATUS::STARTING) {
             ctx->logTrace(Ctx::TRACE::WRITER, "client requested start when already starting");
             response.set_code(pb::ResponseCode::STARTING);
+            return;
+        }
+        if (metadata->racOnline && (metadata->racResume || !metadata->racEpoch.empty() || request.has_seq() ||
+                request.tm_val_case() != pb::RedoRequest::TmValCase::kScn || Scn(request.scn()) == Scn::none() || request.scn() == 0)) {
+            response.set_code(pb::ResponseCode::FAILED_START);
             return;
         }
 
@@ -143,12 +156,17 @@ namespace OpenLogReplicator {
                 response.set_code(pb::ResponseCode::INVALID_COMMAND);
                 return;
         }
+        if (metadata->racOnline)
+            metadata->beginNativeStartup();
         metadata->setStatusStarting(this);
 
         contextSet(CONTEXT::SLEEP);
-        metadata->waitForReplicator(this);
+        if (metadata->racOnline)
+            (void)metadata->waitForNativeReady(this);
+        else
+            metadata->waitForReplicator(this);
 
-        if (metadata->status == Metadata::STATUS::REPLICATING) {
+        if (metadata->status == Metadata::STATUS::REPLICATING && !ctx->hardShutdown) {
             response.set_code(pb::ResponseCode::REPLICATE);
             response.set_scn(metadata->firstDataScn.getData());
             response.set_c_scn(confirmedScn.getData());
@@ -172,6 +190,11 @@ namespace OpenLogReplicator {
         if (request.database_name() != database) {
             ctx->warning(60035, "unknown database requested, got: " + std::string(request.database_name()) + " instead of " + database);
             response.set_code(pb::ResponseCode::INVALID_DATABASE);
+            return;
+        }
+        if (metadata->racOnline && ((metadata->status == Metadata::STATUS::STARTING && !metadata->waitForNativeReady(this)) ||
+                metadata->status != Metadata::STATUS::REPLICATING || ctx->hardShutdown)) {
+            response.set_code(pb::ResponseCode::FAILED_START);
             return;
         }
 
@@ -228,7 +251,7 @@ namespace OpenLogReplicator {
 
         while (currentQueueSize > 0 && (queue[0]->lwnScn < Scn(request.c_scn()) ||
                 (queue[0]->lwnScn == Scn(request.c_scn()) && queue[0]->lwnIdx <= request.c_idx())))
-            confirmMessage(queue[0]);
+            confirmMessage(queue[0], true);
     }
 
     void WriterStream::pollQueue() {

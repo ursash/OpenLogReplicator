@@ -1,8 +1,0 @@
-{
-  "aux_run_id": "aux20261012T042200Z",
-  "flink_parcel": "/opt/cloudera/parcels/FLINK-1.20.5-csa1.18.0.0-82229597",
-  "flink_home": "/opt/cloudera/parcels/FLINK-1.20.5-csa1.18.0.0-82229597/lib/flink",
-  "rest_port": 28140,
-  "runtime_root": "/tmp/flink-aux-smoke-aux20261012T042200Z",
-  "bootstrap_servers": "10.129.80.147:9092"
-}
